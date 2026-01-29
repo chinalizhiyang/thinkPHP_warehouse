@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑角色 - 仓储管理系统</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>编辑角色</h1>
+        <form action="/role/edit/{$role.id}" method="post">
+            <div class="mb-3">
+                <label for="name" class="form-label">角色名称</label>
+                <input type="text" class="form-control" id="name" name="name" value="{$role.name}" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">描述</label>
+                <textarea class="form-control" id="description" name="description" rows="3">{$role.description}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a href="/role" class="btn btn-secondary">取消</a>
+        </form>
+    </div>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库存盘点 - 仓储管理系统</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>库存盘点</h1>
+        <form action="/inventory/check" method="post">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>物料名称</th>
+                        <th>物料编码</th>
+                        <th>单位</th>
+                        <th>系统库存</th>
+                        <th>实际库存</th>
+                        <th>差异</th>
+                        <th>单价</th>
+                        <th>差异金额</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $materials as $material}
+                    <tr>
+                        <td>{$material.name}</td>
+                        <td>{$material.code}</td>
+                        <td>{$material.unit}</td>
+                        <td>
+                            <input type="hidden" name="material_id[]" value="{$material.id}">
+                            <input type="number" class="form-control system-stock-input" name="system_stock[]" value="{$material.stock}" readonly>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control actual-stock-input" name="actual_stock[]" value="{$material.stock}" min="0" required>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control difference-input" min="0" readonly>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control price-input" name="price[]" value="{$material.price}" step="0.01" min="0" readonly>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control amount-input" step="0.01" min="0" readonly>
+                        </td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+            
+            <div class="mt-4 mb-3">
+                <label for="total_amount" class="form-label">总差异金额</label>
+                <input type="number" class="form-control" id="total_amount" name="total_amount" step="0.01" min="0" readonly required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">提交盘点</button>
+            <a href="/inventory" class="btn btn-secondary">取消</a>
+        </form>
+    </div>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 计算差异和金额
+        function calculateDifference(index) {
+            const systemStock = parseFloat($(`.system-stock-input:eq(${index})`).val()) || 0;
+            const actualStock = parseFloat($(`.actual-stock-input:eq(${index})`).val()) || 0;
+            const price = parseFloat($(`.price-input:eq(${index})`).val()) || 0;
+            
+            const difference = actualStock - systemStock;
+            const amount = difference * price;
+            
+            $(`.difference-input:eq(${index})`).val(difference);
+            $(`.amount-input:eq(${index})`).val(amount.toFixed(2));
+            calculateTotal();
+        }
+        
+        // 计算总差异金额
+        function calculateTotal() {
+            let total = 0;
+            $('.amount-input').each(function() {
+                total += parseFloat($(this).val()) || 0;
+            });
+            $('#total_amount').val(total.toFixed(2));
+        }
+        
+        // 绑定事件
+        $(document).ready(function() {
+            $('.actual-stock-input').on('input', function() {
+                const index = $(this).closest('tr').index();
+                calculateDifference(index);
+            });
+            
+            // 初始化计算
+            $('.actual-stock-input').each(function() {
+                const index = $(this).closest('tr').index();
+                calculateDifference(index);
+            });
+        });
+    </script>
+</body>
+</html>

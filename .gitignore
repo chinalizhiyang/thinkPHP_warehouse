@@ -1,0 +1,34 @@
+# 依赖目录
+vendor/
+node_modules/
+
+# 环境配置
+.env
+.env.local
+.env.production
+
+# 日志文件
+*.log
+logs/
+runtime/
+
+# 操作系统相关
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE相关
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 数据库文件
+*.sql
+*.db
+*.sqlite
+
+# 临时文件
+tmp/
+temp/
+.DS_Store

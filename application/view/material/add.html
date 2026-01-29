@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加物料 - 仓储管理系统</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>添加物料</h1>
+        <form action="/material/add" method="post">
+            <div class="mb-3">
+                <label for="name" class="form-label">物料名称</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="code" class="form-label">物料编码</label>
+                <input type="text" class="form-control" id="code" name="code" required>
+            </div>
+            <div class="mb-3">
+                <label for="category_id" class="form-label">分类</label>
+                <select class="form-control" id="category_id" name="category_id" required>
+                    <option value="">请选择分类</option>
+                    {foreach $categories as $category}
+                    <option value="{$category.id}">{$category.name}</option>
+                    {/foreach}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="unit" class="form-label">单位</label>
+                <input type="text" class="form-control" id="unit" name="unit" required>
+            </div>
+            <div class="mb-3">
+                <label for="price" class="form-label">单价</label>
+                <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" required>
+            </div>
+            <div class="mb-3">
+                <label for="min_stock" class="form-label">最小库存</label>
+                <input type="number" class="form-control" id="min_stock" name="min_stock" min="0" required>
+            </div>
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a href="/material" class="btn btn-secondary">取消</a>
+        </form>
+    </div>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

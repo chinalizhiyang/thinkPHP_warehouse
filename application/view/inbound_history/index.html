@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{$title}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .search-form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .search-form input {
+            padding: 8px 12px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .search-form button {
+            padding: 8px 16px;
+            background-color: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-form button:hover {
+            background-color: #40a9ff;
+        }
+        .table-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        th {
+            background-color: #fafafa;
+            font-weight: 600;
+            color: #333;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .btn {
+            padding: 4px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .btn-view {
+            background-color: #1890ff;
+            color: #fff;
+        }
+        .btn-view:hover {
+            background-color: #40a9ff;
+        }
+        .empty {
+            text-align: center;
+            padding: 40px 0;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{$title}</h1>
+        
+        <!-- 搜索表单 -->
+        <div class="search-form">
+            <form action="/inbound-history/search" method="post">
+                <input type="text" name="keyword" placeholder="订单号/供应商" value="{$keyword|default=''}">
+                <input type="date" name="start_date" value="{$start_date|default=''}">
+                <input type="date" name="end_date" value="{$end_date|default=''}">
+                <button type="submit">搜索</button>
+            </form>
+        </div>
+        
+        <!-- 列表表格 -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>订单号</th>
+                        <th>供应商</th>
+                        <th>操作人</th>
+                        <th>总金额</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {if $list}
+                        {foreach $list as $item}
+                            <tr>
+                                <td>{$item.order_no}</td>
+                                <td>{$item.supplier}</td>
+                                <td>{$item.operator}</td>
+                                <td>¥{$item.total_amount}</td>
+                                <td>{$item.status == 1 ? '已完成' : '未完成'}</td>
+                                <td>{$item.created_at}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="/inbound-history/detail/{$item.id}" class="btn btn-view">查看详情</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {/foreach}
+                    {else}
+                        <tr>
+                            <td colspan="7" class="empty">暂无入库记录</td>
+                        </tr>
+                    {/if}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

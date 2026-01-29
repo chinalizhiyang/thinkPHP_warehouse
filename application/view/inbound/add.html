@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加入库单 - 仓储管理系统</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>添加入库单</h1>
+        <form action="/inbound/add" method="post">
+            <div class="mb-3">
+                <label for="supplier" class="form-label">供应商</label>
+                <input type="text" class="form-control" id="supplier" name="supplier" required>
+            </div>
+            
+            <h3 class="mt-4 mb-3">入库明细</h3>
+            <div id="inbound-details">
+                <div class="row mb-3 inbound-detail-item">
+                    <div class="col-md-3">
+                        <label for="material_id_0" class="form-label">物料</label>
+                        <select class="form-control material-select" id="material_id_0" name="material_id[]" required>
+                            <option value="">请选择物料</option>
+                            {foreach $materials as $material}
+                            <option value="{$material.id}" data-name="{$material.name}" data-code="{$material.code}" data-unit="{$material.unit}" data-price="{$material.price}">{$material.name} ({$material.code})</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="quantity_0" class="form-label">数量</label>
+                        <input type="number" class="form-control quantity-input" id="quantity_0" name="quantity[]" min="1" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="price_0" class="form-label">单价</label>
+                        <input type="number" class="form-control price-input" id="price_0" name="price[]" step="0.01" min="0" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">金额</label>
+                        <input type="number" class="form-control amount-input" step="0.01" min="0" readonly>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">操作</label>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-primary add-detail-btn">+</button>
+                            <button type="button" class="btn btn-sm btn-danger remove-detail-btn">-</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 mb-3">
+                <label for="total_amount" class="form-label">总金额</label>
+                <input type="number" class="form-control" id="total_amount" name="total_amount" step="0.01" min="0" readonly required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a href="/inbound" class="btn btn-secondary">取消</a>
+        </form>
+    </div>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 计算金额
+        function calculateAmount(index) {
+            const quantity = parseFloat($(`.quantity-input:eq(${index})`).val()) || 0;
+            const price = parseFloat($(`.price-input:eq(${index})`).val()) || 0;
+            const amount = quantity * price;
+            $(`.amount-input:eq(${index})`).val(amount.toFixed(2));
+            calculateTotal();
+        }
+        
+        // 计算总金额
+        function calculateTotal() {
+            let total = 0;
+            $('.amount-input').each(function() {
+                total += parseFloat($(this).val()) || 0;
+            });
+            $('#total_amount').val(total.toFixed(2));
+        }
+        
+        // 添加入库明细行
+        function addDetailRow() {
+            const index = $('.inbound-detail-item').length;
+            const html = `
+                <div class="row mb-3 inbound-detail-item">
+                    <div class="col-md-3">
+                        <label for="material_id_${index}" class="form-label">物料</label>
+                        <select class="form-control material-select" id="material_id_${index}" name="material_id[]" required>
+                            <option value="">请选择物料</option>
+                            {foreach $materials as $material}
+                            <option value="{$material.id}" data-name="{$material.name}" data-code="{$material.code}" data-unit="{$material.unit}" data-price="{$material.price}">{$material.name} ({$material.code})</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="quantity_${index}" class="form-label">数量</label>
+                        <input type="number" class="form-control quantity-input" id="quantity_${index}" name="quantity[]" min="1" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="price_${index}" class="form-label">单价</label>
+                        <input type="number" class="form-control price-input" id="price_${index}" name="price[]" step="0.01" min="0" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">金额</label>
+                        <input type="number" class="form-control amount-input" step="0.01" min="0" readonly>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">操作</label>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-primary add-detail-btn">+</button>
+                            <button type="button" class="btn btn-sm btn-danger remove-detail-btn">-</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('#inbound-details').append(html);
+            
+            // 绑定事件
+            bindDetailEvents();
+        }
+        
+        // 绑定明细行事件
+        function bindDetailEvents() {
+            // 物料选择事件
+            $('.material-select').off('change').on('change', function() {
+                const index = $(this).closest('.inbound-detail-item').index();
+                const price = $(this).find('option:selected').data('price');
+                $(`.price-input:eq(${index})`).val(price);
+                calculateAmount(index);
+            });
+            
+            // 数量输入事件
+            $('.quantity-input').off('input').on('input', function() {
+                const index = $(this).closest('.inbound-detail-item').index();
+                calculateAmount(index);
+            });
+            
+            // 单价输入事件
+            $('.price-input').off('input').on('input', function() {
+                const index = $(this).closest('.inbound-detail-item').index();
+                calculateAmount(index);
+            });
+            
+            // 添加明细按钮事件
+            $('.add-detail-btn').off('click').on('click', function() {
+                addDetailRow();
+            });
+            
+            // 删除明细按钮事件
+            $('.remove-detail-btn').off('click').on('click', function() {
+                const item = $(this).closest('.inbound-detail-item');
+                if ($('.inbound-detail-item').length > 1) {
+                    item.remove();
+                    calculateTotal();
+                }
+            });
+        }
+        
+        // 初始化
+        $(document).ready(function() {
+            bindDetailEvents();
+        });
+    </script>
+</body>
+</html>

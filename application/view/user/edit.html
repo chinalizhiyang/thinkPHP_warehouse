@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑用户 - 仓储管理系统</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>编辑用户</h1>
+        <form action="/user/edit/{$user.id}" method="post">
+            <div class="mb-3">
+                <label for="username" class="form-label">用户名</label>
+                <input type="text" class="form-control" id="username" name="username" value="{$user.username}" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">密码（留空不修改）</label>
+                <input type="password" class="form-control" id="password" name="password">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">邮箱</label>
+                <input type="email" class="form-control" id="email" name="email" value="{$user.email}" required>
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">手机号</label>
+                <input type="tel" class="form-control" id="phone" name="phone" value="{$user.phone}" required>
+            </div>
+            <div class="mb-3">
+                <label for="role" class="form-label">角色</label>
+                <select class="form-control" id="role" name="role" required>
+                    <option value="user" {if $user.role == 'user'}selected{/if}>普通用户</option>
+                    <option value="admin" {if $user.role == 'admin'}selected{/if}>管理员</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a href="/user/index" class="btn btn-secondary">取消</a>
+        </form>
+    </div>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

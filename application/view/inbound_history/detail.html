@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{$title}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .info-card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .info-item {
+            display: flex;
+            margin-bottom: 12px;
+        }
+        .info-label {
+            width: 120px;
+            font-weight: 600;
+            color: #666;
+        }
+        .info-value {
+            flex: 1;
+            color: #333;
+        }
+        .table-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        th {
+            background-color: #fafafa;
+            font-weight: 600;
+            color: #333;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .btn {
+            padding: 8px 16px;
+            background-color: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background-color: #40a9ff;
+        }
+        .btn-back {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{$title}</h1>
+        
+        <!-- 订单信息 -->
+        <div class="info-card">
+            <div class="info-item">
+                <div class="info-label">订单号：</div>
+                <div class="info-value">{$detail.order_no}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">供应商：</div>
+                <div class="info-value">{$detail.supplier}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">操作人：</div>
+                <div class="info-value">{$detail.operator}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">总金额：</div>
+                <div class="info-value">¥{$detail.total_amount}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">状态：</div>
+                <div class="info-value">{$detail.status == 1 ? '已完成' : '未完成'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">创建时间：</div>
+                <div class="info-value">{$detail.created_at}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">更新时间：</div>
+                <div class="info-value">{$detail.updated_at}</div>
+            </div>
+        </div>
+        
+        <!-- 明细表格 -->
+        <h2>入库明细</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>物料编号</th>
+                        <th>物料名称</th>
+                        <th>规格</th>
+                        <th>单位</th>
+                        <th>单价</th>
+                        <th>数量</th>
+                        <th>金额</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {if $detail.details}
+                        {foreach $detail.details as $item}
+                            <tr>
+                                <td>{$item.material_code}</td>
+                                <td>{$item.material_name}</td>
+                                <td>{$item.spec|default=''}</td>
+                                <td>{$item.unit}</td>
+                                <td>¥{$item.price}</td>
+                                <td>{$item.quantity}</td>
+                                <td>¥{$item.amount}</td>
+                            </tr>
+                        {/foreach}
+                    {else}
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px 0; color: #999;">暂无明细数据</td>
+                        </tr>
+                    {/if}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 返回按钮 -->
+        <a href="/inbound-history" class="btn btn-back">返回列表</a>
+    </div>
+</body>
+</html>

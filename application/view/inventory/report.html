@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库存报表 - 仓储管理系统</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>库存报表</h1>
+        <form action="/inventory/report" method="get" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="start_date" class="form-label">开始日期</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" value="{$report.start_date}" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="end_date" class="form-label">结束日期</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{$report.end_date}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">操作</label>
+                    <button type="submit" class="btn btn-primary w-100">生成报表</button>
+                </div>
+            </div>
+        </form>
+        
+        <!-- 报表汇总信息 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>汇总信息</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <p><strong>开始日期:</strong> {$report.start_date}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p><strong>结束日期:</strong> {$report.end_date}</p>
+                    </div>
+                    <div class="col-md-2">
+                        <p><strong>物料种类:</strong> {$report.total_materials}</p>
+                    </div>
+                    <div class="col-md-2">
+                        <p><strong>总库存:</strong> {$report.total_stock}</p>
+                    </div>
+                    <div class="col-md-2">
+                        <p><strong>总金额:</strong> {$report.total_amount}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 报表详细数据 -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>物料名称</th>
+                    <th>物料编码</th>
+                    <th>单位</th>
+                    <th>库存</th>
+                    <th>单价</th>
+                    <th>金额</th>
+                </tr>
+            </thead>
+            <tbody>
+                {foreach $report.details as $detail}
+                <tr>
+                    <td>{$detail.material_name}</td>
+                    <td>{$detail.material_code}</td>
+                    <td>{$detail.unit}</td>
+                    <td>{$detail.stock}</td>
+                    <td>{$detail.price}</td>
+                    <td>{$detail.amount}</td>
+                </tr>
+                {/foreach}
+            </tbody>
+        </table>
+        
+        <div class="mt-4">
+            <a href="/inventory" class="btn btn-secondary">返回库存管理</a>
+            <button type="button" class="btn btn-primary" onclick="window.print()">打印报表</button>
+        </div>
+    </div>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

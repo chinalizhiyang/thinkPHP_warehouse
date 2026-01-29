@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统日志 - 仓储管理系统</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>系统日志</h1>
+        <div class="mt-3 mb-3">
+            <a href="/record" class="btn btn-secondary">操作记录</a>
+            <a href="/record/backup" class="btn btn-secondary">数据备份</a>
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cleanModal">清理日志</button>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>级别</th>
+                    <th>消息</th>
+                    <th>数据</th>
+                    <th>创建时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {foreach $logs as $log}
+                <tr>
+                    <td>{$log.id}</td>
+                    <td>
+                        {if $log.level == 'info'}
+                        <span class="badge bg-info">{$log.level}</span>
+                        {elseif $log.level == 'warning'}
+                        <span class="badge bg-warning">{$log.level}</span>
+                        {elseif $log.level == 'error'}
+                        <span class="badge bg-danger">{$log.level}</span>
+                        {else}
+                        <span class="badge bg-secondary">{$log.level}</span>
+                        {/if}
+                    </td>
+                    <td>{$log.message}</td>
+                    <td>{$log.data}</td>
+                    <td>{$log.created_at}</td>
+                </tr>
+                {/foreach}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 清理日志模态框 -->
+    <div class="modal fade" id="cleanModal" tabindex="-1" aria-labelledby="cleanModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="/record/cleanSystem" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="cleanModalLabel">清理系统日志</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="days" class="form-label">保留天数</label>
+                            <input type="number" class="form-control" id="days" name="days" value="30" min="1" required>
+                            <small class="form-text text-muted">将删除超过指定天数的系统日志</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('确定要清理吗？');">清理</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

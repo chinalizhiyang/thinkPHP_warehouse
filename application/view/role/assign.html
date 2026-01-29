@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分配权限 - 仓储管理系统</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>分配权限 - {$role.name}</h1>
+        <form action="/role/assign/{$role.id}" method="post">
+            <div class="mb-3">
+                <label class="form-label">权限列表</label>
+                <div class="row">
+                    {foreach $permissions as $permission}
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="permission_{$permission.id}" name="permission_id[]" value="{$permission.id}" {if in_array($permission.id, $role_permissions)}checked{/if}>
+                            <label class="form-check-label" for="permission_{$permission.id}">
+                                {$permission.description} ({$permission.name})
+                            </label>
+                        </div>
+                    </div>
+                    {/foreach}
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a href="/role" class="btn btn-secondary">取消</a>
+        </form>
+    </div>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
