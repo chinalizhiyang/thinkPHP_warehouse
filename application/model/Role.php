@@ -100,42 +100,78 @@ class Role
                 ],
                 [
                     'id' => 3,
+                    'name' => 'material_import_csv',
+                    'description' => '物料导入CSV',
+                    'module' => 'material'
+                ],
+                [
+                    'id' => 4,
                     'name' => 'inbound_manage',
                     'description' => '入库管理',
                     'module' => 'inbound'
                 ],
                 [
-                    'id' => 4,
+                    'id' => 5,
                     'name' => 'outbound_manage',
                     'description' => '出库管理',
                     'module' => 'outbound'
                 ],
                 [
-                    'id' => 5,
+                    'id' => 6,
                     'name' => 'inventory_manage',
                     'description' => '库存管理',
                     'module' => 'inventory'
                 ],
                 [
-                    'id' => 6,
+                    'id' => 7,
+                    'name' => 'inventory_export_csv',
+                    'description' => '库存导出CSV',
+                    'module' => 'inventory'
+                ],
+                [
+                    'id' => 8,
                     'name' => 'record_manage',
                     'description' => '记录管理',
                     'module' => 'record'
                 ],
                 [
-                    'id' => 7,
+                    'id' => 9,
                     'name' => 'inbound_history',
                     'description' => '入库历史',
                     'module' => 'inbound_history'
                 ],
                 [
-                    'id' => 8,
+                    'id' => 10,
+                    'name' => 'inbound_history_import_csv',
+                    'description' => '入库历史导入CSV',
+                    'module' => 'inbound_history'
+                ],
+                [
+                    'id' => 11,
+                    'name' => 'inbound_history_export_csv',
+                    'description' => '入库历史导出CSV',
+                    'module' => 'inbound_history'
+                ],
+                [
+                    'id' => 12,
                     'name' => 'outbound_history',
                     'description' => '出库历史',
                     'module' => 'outbound_history'
                 ],
                 [
-                    'id' => 9,
+                    'id' => 13,
+                    'name' => 'outbound_history_import_csv',
+                    'description' => '出库历史导入CSV',
+                    'module' => 'outbound_history'
+                ],
+                [
+                    'id' => 14,
+                    'name' => 'outbound_history_export_csv',
+                    'description' => '出库历史导出CSV',
+                    'module' => 'outbound_history'
+                ],
+                [
+                    'id' => 15,
                     'name' => 'role_manage',
                     'description' => '角色管理',
                     'module' => 'role'

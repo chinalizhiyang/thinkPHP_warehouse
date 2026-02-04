@@ -56,7 +56,14 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="permission_{$permission.id}" name="permission_id[]" value="{$permission.id}" {if in_array($permission.id, $role_permissions)}checked{/if}>
                                 <label class="form-check-label" for="permission_{$permission.id}">
-                                    {$permission.description}
+                                    {if $permission.name == 'material_import_csv'}物料导入CSV
+                                    {elseif $permission.name == 'inventory_export_csv'}库存导出CSV
+                                    {elseif $permission.name == 'inbound_history_import_csv'}入库历史导入CSV
+                                    {elseif $permission.name == 'inbound_history_export_csv'}入库历史导出CSV
+                                    {elseif $permission.name == 'outbound_history_import_csv'}出库历史导入CSV
+                                    {elseif $permission.name == 'outbound_history_export_csv'}出库历史导出CSV
+                                    {else}{$permission.description}
+                                    {/if}
                                 </label>
                             </div>
                         </div>
