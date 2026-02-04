@@ -207,15 +207,83 @@ class Record
     // 清理操作记录
     public static function cleanOperation($days = 30)
     {
-        // 实际项目中使用数据库删除
-        return true;
+        try {
+            // 获取数据库连接
+            $db_config = require __DIR__ . '/../config/database.php';
+            $pdo = new \PDO(
+                "mysql:host={$db_config['hostname']};dbname={$db_config['database']};charset={$db_config['charset']}",
+                $db_config['username'],
+                $db_config['password']
+            );
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            
+            // 计算要删除的日期
+            $delete_before = date('Y-m-d H:i:s', strtotime("-$days days"));
+            
+            // 删除指定天数之前的记录
+            $sql = "DELETE FROM operation_records WHERE created_at < ?";
+            $stmt = $pdo->prepare($sql);
+            $result = $stmt->execute([$delete_before]);
+            
+            if ($result) {
+                // 记录清理操作日志
+                self::addOperation([
+                    'user_id' => $_SESSION['user']['id'] ?? 0,
+                    'username' => $_SESSION['user']['username'] ?? 'system',
+                    'action' => 'clean',
+                    'target' => 'operation_records',
+                    'content' => "清理了 $days 天前的操作记录",
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+                ]);
+                
+                return true;
+            }
+        } catch (\Exception $e) {
+            error_log('Failed to clean operation records: ' . $e->getMessage());
+        }
+        
+        return false;
     }
     
     // 清理系统日志
     public static function cleanSystem($days = 30)
     {
-        // 实际项目中使用数据库删除
-        return true;
+        try {
+            // 获取数据库连接
+            $db_config = require __DIR__ . '/../config/database.php';
+            $pdo = new \PDO(
+                "mysql:host={$db_config['hostname']};dbname={$db_config['database']};charset={$db_config['charset']}",
+                $db_config['username'],
+                $db_config['password']
+            );
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            
+            // 计算要删除的日期
+            $delete_before = date('Y-m-d H:i:s', strtotime("-$days days"));
+            
+            // 删除指定天数之前的记录
+            $sql = "DELETE FROM system_logs WHERE created_at < ?";
+            $stmt = $pdo->prepare($sql);
+            $result = $stmt->execute([$delete_before]);
+            
+            if ($result) {
+                // 记录清理操作日志
+                self::addOperation([
+                    'user_id' => $_SESSION['user']['id'] ?? 0,
+                    'username' => $_SESSION['user']['username'] ?? 'system',
+                    'action' => 'clean',
+                    'target' => 'system_logs',
+                    'content' => "清理了 $days 天前的系统日志",
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+                ]);
+                
+                return true;
+            }
+        } catch (\Exception $e) {
+            error_log('Failed to clean system logs: ' . $e->getMessage());
+        }
+        
+        return false;
     }
     
     // 备份数据

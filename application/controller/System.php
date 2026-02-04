@@ -27,6 +27,21 @@ class System
         // 渲染操作记录内容
         ob_start();
         ?>
+        <style>
+        .operation-table td {
+            vertical-align: middle;
+        }
+        .operation-table pre {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 0;
+        }
+        .badge {
+            font-size: 0.85em;
+        }
+        </style>
         <div class="card">
             <div class="card-header">
                 <h3><i class="fa fa-list"></i> 操作记录</h3>
@@ -37,7 +52,7 @@ class System
                     <a href="/record/backup" class="btn btn-secondary">数据备份</a>
                     <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cleanModal">清理记录</button>
                 </div>
-                <table class="table table-bordered table-striped">
+                <table class="table table-bordered table-striped operation-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -54,9 +69,107 @@ class System
                         <tr>
                             <td><?php echo $record['id']; ?></td>
                             <td><?php echo $record['username']; ?></td>
-                            <td><?php echo $record['action']; ?></td>
-                            <td><?php echo $record['target']; ?></td>
-                            <td><?php echo $record['content']; ?></td>
+                            <td>
+                                <?php 
+                                $action = $record['action'];
+                                switch($action) {
+                                    case 'login':
+                                        echo '<span class="badge bg-success">登录</span>';
+                                        break;
+                                    case 'logout':
+                                        echo '<span class="badge bg-secondary">登出</span>';
+                                        break;
+                                    case 'create':
+                                    case 'add':
+                                        echo '<span class="badge bg-primary">新增</span>';
+                                        break;
+                                    case 'update':
+                                    case 'edit':
+                                        echo '<span class="badge bg-warning">编辑</span>';
+                                        break;
+                                    case 'delete':
+                                        echo '<span class="badge bg-danger">删除</span>';
+                                        break;
+                                    case 'import':
+                                        echo '<span class="badge bg-info">导入</span>';
+                                        break;
+                                    case 'export':
+                                        echo '<span class="badge bg-dark">导出</span>';
+                                        break;
+                                    case 'backup':
+                                        echo '<span class="badge bg-warning">备份</span>';
+                                        break;
+                                    case 'restore':
+                                        echo '<span class="badge bg-danger">恢复</span>';
+                                        break;
+                                    default:
+                                        echo '<span class="badge bg-light text-dark">' . htmlspecialchars($action) . '</span>';
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php 
+                                $target = $record['target'];
+                                switch($target) {
+                                    case 'user':
+                                    case 'users':
+                                        echo '<span class="badge bg-primary">用户管理</span>';
+                                        break;
+                                    case 'material':
+                                    case 'materials':
+                                        echo '<span class="badge bg-success">物料管理</span>';
+                                        break;
+                                    case 'inbound':
+                                        echo '<span class="badge bg-info">入库管理</span>';
+                                        break;
+                                    case 'outbound':
+                                        echo '<span class="badge bg-warning">出库管理</span>';
+                                        break;
+                                    case 'inventory':
+                                        echo '<span class="badge bg-secondary">库存管理</span>';
+                                        break;
+                                    case 'system':
+                                        echo '<span class="badge bg-dark">系统</span>';
+                                        break;
+                                    case 'backup':
+                                        echo '<span class="badge bg-danger">数据备份</span>';
+                                        break;
+                                    default:
+                                        echo '<span class="badge bg-light text-dark">' . htmlspecialchars($target) . '</span>';
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php 
+                                // 格式化操作内容显示
+                                $content = $record['content'];
+                                if (strpos($content, '用户') !== false && strpos($content, '登录') !== false) {
+                                    echo '<span class="badge bg-success">登录系统</span>';
+                                } elseif (strpos($content, '添加') !== false) {
+                                    echo '<span class="badge bg-primary">添加操作</span>';
+                                } elseif (strpos($content, '修改') !== false || strpos($content, '编辑') !== false) {
+                                    echo '<span class="badge bg-warning">修改操作</span>';
+                                } elseif (strpos($content, '删除') !== false) {
+                                    echo '<span class="badge bg-danger">删除操作</span>';
+                                } elseif (strpos($content, '导入') !== false) {
+                                    echo '<span class="badge bg-info">导入操作</span>';
+                                } elseif (strpos($content, '导出') !== false) {
+                                    echo '<span class="badge bg-secondary">导出操作</span>';
+                                } else {
+                                    // 如果是JSON格式的数据，美化显示
+                                    if (substr($content, 0, 1) === '{' || substr($content, 0, 1) === '[') {
+                                        $decoded = json_decode($content, true);
+                                        if ($decoded) {
+                                            echo '<pre class="mb-0" style="font-size: 12px; max-height: 100px; overflow-y: auto;">' . json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . '</pre>';
+                                        } else {
+                                            echo '<span class="text-muted">复杂数据</span>';
+                                        }
+                                    } else {
+                                        echo htmlspecialchars($content);
+                                    }
+                                }
+                                ?>
+                            </td>
                             <td><?php echo $record['ip']; ?></td>
                             <td><?php echo $record['created_at']; ?></td>
                         </tr>
@@ -165,7 +278,7 @@ class System
                                 <span class="badge <?php echo $level_class; ?>"><?php echo $log['level']; ?></span>
                             </td>
                             <td><?php echo $log['message']; ?></td>
-                            <td><?php echo $log['data']; ?></td>
+                            <td><?php echo is_array($log['data']) ? json_encode($log['data'], JSON_UNESCAPED_UNICODE) : $log['data']; ?></td>
                             <td><?php echo $log['created_at']; ?></td>
                         </tr>
                         <?php endforeach; ?>
