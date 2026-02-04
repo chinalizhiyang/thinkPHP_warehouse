@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>分配权限 - 仓储管理系统</title>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <style>
+        .permission-module {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .permission-module h4 {
+            color: #495057;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+        }
+        .permission-module .form-check-label {
+            font-size: 13px;
+            padding-top: 2px;
+        }
+        .form-check {
+            margin-bottom: 6px;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
@@ -12,18 +34,36 @@
         <form action="/role/assign/{$role.id}" method="post">
             <div class="mb-3">
                 <label class="form-label">权限列表</label>
-                <div class="row">
-                    {foreach $permissions as $permission}
-                    <div class="col-md-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="permission_{$permission.id}" name="permission_id[]" value="{$permission.id}" {if in_array($permission.id, $role_permissions)}checked{/if}>
-                            <label class="form-check-label" for="permission_{$permission.id}">
-                                {$permission.description} ({$permission.name})
-                            </label>
+                
+                {foreach $permissions_by_module as $module => $module_permissions}
+                <div class="permission-module mb-4">
+                    <h4 class="border-bottom pb-2 mb-3">
+                        {if $module == 'user'}用户管理
+                        {elseif $module == 'material'}物料管理
+                        {elseif $module == 'inbound'}入库管理
+                        {elseif $module == 'outbound'}出库管理
+                        {elseif $module == 'inventory'}库存管理
+                        {elseif $module == 'record'}记录管理
+                        {elseif $module == 'role'}角色管理
+                        {elseif $module == 'inbound_history'}入库历史
+                        {elseif $module == 'outbound_history'}出库历史
+                        {else}{$module}
+                        {/if}
+                    </h4>
+                    <div class="row">
+                        {foreach $module_permissions as $permission}
+                        <div class="col-md-4 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="permission_{$permission.id}" name="permission_id[]" value="{$permission.id}" {if in_array($permission.id, $role_permissions)}checked{/if}>
+                                <label class="form-check-label" for="permission_{$permission.id}">
+                                    {$permission.description}
+                                </label>
+                            </div>
                         </div>
+                        {/foreach}
                     </div>
-                    {/foreach}
                 </div>
+                {/foreach}
             </div>
             <button type="submit" class="btn btn-primary">保存</button>
             <a href="/role" class="btn btn-secondary">取消</a>

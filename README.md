@@ -1,204 +1,154 @@
-# PHP仓储管理系统（ThinkPHP版）
+# 仓储管理系统 (Warehouse Management System)
 
-## 项目简介
+基于PHP的仓储管理系统，采用ThinkPHP框架开发。
 
-本项目是一个功能完善的仓储管理系统，参考了现有的Django仓储管理系统，实现了物料管理、入库管理、出库管理、库存管理、记录管理、入库历史和出库历史等核心功能。系统采用了模拟的ThinkPHP框架结构，实现了路由解析、控制器调用、视图渲染等基本功能。
+## 📋 系统特性
 
-## 技术栈
+- **物料管理**：物料信息维护、分类管理
+- **入库管理**：入库单创建、审核、历史记录
+- **出库管理**：出库申请、审批、发货跟踪
+- **库存管理**：实时库存查询、预警设置、盘点功能
+- **系统管理**：用户权限、操作日志、数据备份恢复
 
-- **后端**: PHP 7.0+
-- **数据库**: MySQL 5.7+
-- **前端**: HTML5, CSS3, JavaScript
-- **架构**: 模拟ThinkPHP框架结构，实现MVC模式
+## 🛠 技术栈
 
-## 目录结构
+- **后端框架**：ThinkPHP 6.0
+- **数据库**：MySQL 8.0
+- **前端框架**：Bootstrap 5
+- **编程语言**：PHP 8.0+
+
+## 📁 项目结构
 
 ```
-thinkphp仓储管理系统/
+warehouse-system/
 ├── application/           # 应用目录
-│   ├── controller/        # 控制器
-│   │   ├── Index.php      # 首页控制器
-│   │   ├── User.php       # 用户控制器
-│   │   ├── Role.php       # 角色控制器
-│   │   ├── Material.php   # 物料控制器
-│   │   ├── Inbound.php    # 入库控制器
-│   │   ├── Outbound.php   # 出库控制器
-│   │   ├── Inventory.php  # 库存控制器
-│   │   ├── Record.php     # 记录控制器
-│   │   ├── InboundHistory.php  # 入库历史控制器
-│   │   └── OutboundHistory.php # 出库历史控制器
-│   ├── model/             # 模型
-│   │   ├── User.php       # 用户模型
-│   │   ├── Role.php       # 角色模型
-│   │   ├── Material.php   # 物料模型
-│   │   ├── Inbound.php    # 入库模型
-│   │   └── Outbound.php   # 出库模型
-│   ├── view/              # 视图
-│   │   ├── index/         # 首页视图
-│   │   ├── user/          # 用户视图
-│   │   ├── role/          # 角色视图
-│   │   ├── material/      # 物料视图
-│   │   ├── inbound/       # 入库视图
-│   │   ├── outbound/      # 出库视图
-│   │   ├── inventory/     # 库存视图
-│   │   ├── record/        # 记录视图
-│   │   ├── inbound_history/  # 入库历史视图
-│   │   └── outbound_history/ # 出库历史视图
-│   ├── config/            # 配置文件
-│   │   ├── route.php      # 路由配置
-│   │   └── database.php   # 数据库配置
-│   └── common.php         # 公共函数
-├── vendor/                # 第三方库
-│   └── autoload.php       # 自动加载器
-├── backup_20260118_180102.sql  # 数据库备份文件
-├── import_sql.php         # SQL导入脚本
-├── test_db.php            # 数据库测试脚本
-└── README.md              # 项目说明
+│   ├── controller/       # 控制器
+│   ├── model/           # 模型
+│   ├── view/            # 视图模板
+│   ├── config/          # 配置文件
+│   └── common.php       # 公共函数
+├── public/              # 公共资源目录
+├── backups/             # 数据库备份目录
+└── vendor/              # 第三方依赖
 ```
 
-## 核心功能
+## 🚀 部署说明
 
-1. **用户管理**：用户登录、个人资料管理、用户列表管理
-2. **角色管理**：角色创建、编辑、删除、权限分配
-3. **物料管理**：物料添加、编辑、删除、查询、分类管理
-4. **入库管理**：入库单创建、编辑、删除、查询、物料入库
-5. **出库管理**：出库单创建、编辑、删除、查询、物料出库
-6. **库存管理**：库存查询、库存预警、库存盘点、库存报表
-7. **记录管理**：操作记录查询、系统日志管理、数据备份
-8. **入库历史**：入库记录查询、搜索、详情查看
-9. **出库历史**：出库记录查询、搜索、详情查看
+### 环境要求
+- PHP >= 8.0
+- MySQL >= 5.7
+- Apache/Nginx Web服务器
 
-## 安装步骤
+### 安装步骤
 
-### 1. 环境要求
+1. **克隆项目**
+```bash
+git clone https://github.com/您的用户名/仓库名.git
+cd 仓库名
+```
 
-- PHP 7.0+
-- MySQL 5.7+
-- Web服务器（如Apache、Nginx等）
+2. **配置数据库**
+```bash
+# 创建数据库
+mysql -u root -p -e "CREATE DATABASE warehouse_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-### 2. 安装步骤
+# 导入初始数据
+mysql -u root -p warehouse_db < backup_initial.sql
+```
 
-1. **下载项目**：将项目文件下载到本地或服务器
+3. **配置文件**
+```php
+# 编辑 application/config/database.php
+return [
+    'hostname' => 'localhost',
+    'database' => 'warehouse_db',
+    'username' => '您的用户名',
+    'password' => '您的密码',
+    'hostport' => '3306',
+];
+```
 
-2. **创建数据库**：
-   - 登录MySQL，创建名为 `warehouse_db` 的数据库
-   - 执行 `backup_20260118_180102.sql` 文件，导入数据库表结构和数据
-   
-   执行方法：
-   ```bash
-   # 使用MySQL命令行
-   mysql -u root -p warehouse_db < backup_20260118_180102.sql
-   
-   # 或使用phpMyAdmin等工具导入
-   ```
+4. **设置权限**
+```bash
+chmod -R 755 backups/
+chmod -R 777 runtime/
+```
 
-3. **配置数据库连接**：
-   - 编辑 `application/config/database.php` 文件，配置数据库连接信息
-   
-   ```php
-   return [
-       'type'            => 'mysql',
-       'hostname'        => 'localhost',
-       'database'        => 'warehouse_db',
-       'username'        => 'root',
-       'password'        => '123456',
-       'hostport'        => '3306',
-       'charset'         => 'utf8mb4',
-   ];
-   ```
+5. **访问系统**
+- 前台地址：http://localhost
+- 默认管理员：admin / 123456
 
-4. **配置Web服务器**：
-   - 将项目根目录设置为Web服务器的文档根目录
-   - 确保PHP模块已启用
+## 🔧 主要功能模块
 
-5. **访问系统**：
-   - 打开浏览器访问：`http://localhost` 或 `http://your-domain.com`
-   - 默认管理员账号：admin / 123456
-   - 默认普通用户账号：user / 123456
-
-## 配置说明
-
-### 数据库配置
-
-数据库配置文件位于 `application/config/database.php`，包含以下配置项：
-
-- `hostname`: 数据库主机地址
-- `database`: 数据库名称
-- `username`: 数据库用户名
-- `password`: 数据库密码
-- `hostport`: 数据库端口
-- `charset`: 数据库字符集
-
-### 路由配置
-
-路由配置文件位于 `application/config/route.php`，定义了系统的路由规则。
-
-### 权限配置
-
-权限管理通过 `application/model/Role.php` 文件实现，支持基于角色的权限控制（RBAC）。
-
-## 系统使用
-
-### 登录系统
-
-1. 访问系统首页，点击登录按钮
-2. 输入用户名和密码（默认：admin / 123456）
-3. 点击登录按钮进入系统
-
-### 管理物料
-
-1. 登录系统后，点击导航菜单中的"物料管理"
-2. 点击"添加物料"按钮，填写物料信息
-3. 点击"保存"按钮，添加物料
-4. 在物料列表中，可以编辑或删除物料
+### 物料管理
+- 物料信息录入和编辑
+- 物料分类管理
+- 物料状态监控
 
 ### 入库管理
-
-1. 登录系统后，点击导航菜单中的"入库管理"
-2. 点击"添加入库单"按钮，填写入库单信息
-3. 添加入库明细，选择物料并填写数量
-4. 点击"保存"按钮，完成入库
+- 入库单创建和审批
+- 入库历史查询
+- 双表记录机制（inbound + inbound_history）
 
 ### 出库管理
+- 出库申请和审批
+- 出库历史追踪
+- 领用部门管理
 
-1. 登录系统后，点击导航菜单中的"出库管理"
-2. 点击"添加出库单"按钮，填写出库单信息
-3. 添加出库明细，选择物料并填写数量
-4. 点击"保存"按钮，完成出库
+### 库存管理
+- 实时库存查询
+- 库存预警设置
+- 库存盘点功能
 
-### 查看历史记录
+### 系统管理
+- 用户权限管理
+- 操作日志记录
+- 数据备份恢复
+- 系统日志查看
 
-1. 登录系统后，点击导航菜单中的"入库历史"或"出库历史"
-2. 在历史记录列表中，可以查看所有的入库或出库记录
-3. 使用搜索功能，按订单号、供应商/客户或日期范围搜索记录
-4. 点击"查看详情"按钮，查看详细的入库或出库信息
+## 📊 数据库设计
 
-## 开发说明
+主要数据表：
+- `materials` - 物料信息表
+- `inbound` - 入库单表
+- `inbound_history` - 入库历史表
+- `outbound` - 出库单表
+- `outbound_history` - 出库历史表
+- `stock` - 库存表
+- `users` - 用户表
+- `auth_*` - 权限相关表
+- `operation_records` - 操作记录表
+- `system_logs` - 系统日志表
 
-### 控制器开发
+## 🔐 安全特性
 
-控制器文件位于 `application/controller/` 目录，每个控制器负责处理特定模块的请求。
+- RBAC权限控制系统
+- 数据库备份恢复功能
+- 操作日志审计
+- SQL注入防护
+- XSS攻击防护
 
-### 模型开发
+## 🤝 贡献指南
 
-模型文件位于 `application/model/` 目录，每个模型负责处理特定数据的操作。
+1. Fork 本仓库
+2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
 
-### 视图开发
+## 📝 许可证
 
-视图文件位于 `application/view/` 目录，每个视图负责渲染特定页面的HTML内容。
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
 
-### 路由配置
+## 📞 技术支持
 
-路由配置文件位于 `application/config/route.php`，定义了URL与控制器方法的映射关系。
+如有问题请联系：李志阳 18975736605
 
-## 注意事项
+## 🔄 更新日志
 
-1. **数据库备份**：定期备份数据库，防止数据丢失
-2. **安全设置**：生产环境中，建议修改默认密码，加强用户认证
-3. **权限管理**：合理分配用户角色和权限，确保系统安全
-4. **性能优化**：对于大型仓库，建议优化数据库查询，提高系统性能
-5. **数据验证**：确保所有用户输入都经过验证，防止SQL注入等攻击
-
-## 许可证
-
-MIT License
+### v2.0.0 (2026-02-04)
+- 重构系统管理模块
+- 实现MySQL原生备份恢复功能
+- 完善操作记录和系统日志功能
+- 优化用户界面和交互体验
+- 增强系统安全性和稳定性

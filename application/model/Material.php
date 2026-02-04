@@ -7,11 +7,25 @@ class Material
     // id, material_code, category, name, spec, unit, location, stock, created_at, updated_at, contact_info, description, supplier, price
     
     // 获取物料列表
-    public static function getList($where = [])
+    public static function getList($where = [], $page = 1, $page_size = 25, $params = [])
     {
-        // 使用数据库查询
-        $sql = "SELECT * FROM materials";
-        $materials = db_get_all($sql);
+        // 构建WHERE条件
+        $where_sql = '';
+        if (!empty($where) && is_array($where)) {
+            $where_sql = "WHERE " . implode(' AND ', $where);
+        }
+        
+        // 获取总记录数
+        $count_sql = "SELECT COUNT(*) as count FROM materials $where_sql";
+        $total = db_get_row($count_sql, $params)['count'] ?? 0;
+        
+        // 计算偏移量
+        $offset = ($page - 1) * $page_size;
+        
+        // 使用数据库查询，添加分页
+        $sql = "SELECT * FROM materials $where_sql ORDER BY updated_at DESC, id DESC LIMIT ? OFFSET ?";
+        $all_params = array_merge($params, [$page_size, $offset]);
+        $materials = db_get_all($sql, $all_params);
         
         // 转换字段名，保持与原来的代码兼容
         foreach ($materials as &$material) {
@@ -22,7 +36,7 @@ class Material
             $material['status'] = 1; // 兼容旧字段
         }
         
-        return $materials;
+        return ['list' => $materials, 'total' => $total, 'page' => $page, 'page_size' => $page_size];
     }
     
     // 根据ID获取物料
@@ -31,6 +45,27 @@ class Material
         // 使用数据库查询
         $sql = "SELECT * FROM materials WHERE id = ?";
         $material = db_get_row($sql, [$id]);
+        
+        if ($material) {
+            // 转换字段名，保持与原来的代码兼容
+            $material['code'] = $material['material_code'];
+            $material['category_id'] = $material['category'];
+            $material['category_name'] = $material['category'];
+            $material['min_stock'] = 0; // 兼容旧字段
+            $material['status'] = 1; // 兼容旧字段
+            
+            return $material;
+        }
+        
+        return false;
+    }
+    
+    // 根据物料编码获取物料
+    public static function getByCode($code)
+    {
+        // 使用数据库查询
+        $sql = "SELECT * FROM materials WHERE material_code = ?";
+        $material = db_get_row($sql, [$code]);
         
         if ($material) {
             // 转换字段名，保持与原来的代码兼容
@@ -79,26 +114,6 @@ class Material
         // 使用数据库删除
         $sql = "DELETE FROM materials WHERE id = ?";
         $result = db_exec($sql, [$id]);
-        
-        return $result;
-    }
-    
-    // 获取分类列表
-    public static function getCategoryList()
-    {
-        // 使用数据库查询
-        $sql = "SELECT DISTINCT category FROM materials";
-        $categories = db_get_all($sql);
-        
-        $result = [];
-        $id = 1;
-        foreach ($categories as $category) {
-            $result[] = [
-                'id' => $id++,
-                'name' => $category['category'],
-                'parent_id' => 0
-            ];
-        }
         
         return $result;
     }

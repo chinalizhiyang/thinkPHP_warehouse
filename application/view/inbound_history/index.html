@@ -90,6 +90,48 @@
             padding: 40px 0;
             color: #999;
         }
+        
+        /* 分页控件样式 */
+        .pagination-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .pagination-info {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .pagination {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .pagination-link {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        
+        .pagination-link:hover {
+            background-color: #f5f5f5;
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .pagination-link.active {
+            background-color: #1890ff;
+            border-color: #1890ff;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -111,12 +153,12 @@
             <table>
                 <thead>
                     <tr>
-                        <th>订单号</th>
-                        <th>供应商</th>
-                        <th>操作人</th>
-                        <th>总金额</th>
-                        <th>状态</th>
-                        <th>创建时间</th>
+                        <th>入库单号</th>
+                        <th>物料名称</th>
+                        <th>物料类别</th>
+                        <th>数量</th>
+                        <th>入库时间</th>
+                        <th>采购人</th>
                         <th>操作</th>
                     </tr>
                 </thead>
@@ -124,12 +166,12 @@
                     {if $list}
                         {foreach $list as $item}
                             <tr>
-                                <td>{$item.order_no}</td>
-                                <td>{$item.supplier}</td>
-                                <td>{$item.operator}</td>
-                                <td>¥{$item.total_amount}</td>
-                                <td>{$item.status == 1 ? '已完成' : '未完成'}</td>
-                                <td>{$item.created_at}</td>
+                                <td>{$item.in_no}</td>
+                                <td>{$item.name}</td>
+                                <td>{$item.category}</td>
+                                <td>{$item.quantity} {$item.unit}</td>
+                                <td>{$item.in_time}</td>
+                                <td>{$item.purchaser}</td>
                                 <td>
                                     <div class="action-buttons">
                                         <a href="/inbound-history/detail/{$item.id}" class="btn btn-view">查看详情</a>
@@ -145,6 +187,25 @@
                 </tbody>
             </table>
         </div>
+        
+        <!-- 分页控件 -->
+        {if $total > $page_size}
+        <div class="pagination-container">
+            <div class="pagination-info">
+                共 {$total} 条记录，每页 {$page_size} 条，当前第 {$page} 页
+            </div>
+            <div class="pagination">
+                <a href="?page=1&page_size={$page_size}" class="pagination-link">首页</a>
+                <a href="?page={$page > 1 ? $page - 1 : 1}&page_size={$page_size}" class="pagination-link">上一页</a>
+                
+                <!-- 简化的分页控件，只显示当前页、上一页和下一页 -->
+                <a href="?page={$page}&page_size={$page_size}" class="pagination-link active">{$page}</a>
+                
+                <a href="?page={$page < $total_pages ? $page + 1 : $total_pages}&page_size={$page_size}" class="pagination-link">下一页</a>
+                <a href="?page={$total_pages}&page_size={$page_size}" class="pagination-link">末页</a>
+            </div>
+        </div>
+        {/if}
     </div>
 </body>
 </html>

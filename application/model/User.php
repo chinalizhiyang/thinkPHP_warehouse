@@ -34,6 +34,21 @@ class User
         return null;
     }
     
+    // 验证密码
+    public static function verifyPassword($user, $password)
+    {
+        // 检查密码是否匹配
+        // 这里处理两种情况：1. 密码是哈希值 2. 密码是明文（用于初始测试）
+        // bcrypt哈希长度通常是60个字符，所以使用 >= 60 来判断
+        if (strlen($user['password']) >= 60) {
+            // 可能是哈希值
+            return password_verify($password, $user['password']);
+        } else {
+            // 可能是明文密码
+            return $user['password'] === $password;
+        }
+    }
+    
     // 获取用户列表
     public static function getList($where = [])
     {
@@ -49,7 +64,7 @@ class User
     {
         // 使用数据库插入
         $sql = "INSERT INTO users (username, password, email, phone, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
-        $result = db_exec($sql, [$data['username'], password_hash_custom($data['password']), $data['email'], $data['phone'], $data['role'] ?? 'user']);
+        $result = db_exec($sql, [$data['username'], password_hash_custom($data['password']), $data['email'], $data['phone'], $data['role']]);
         
         if ($result) {
             $conn = db_connect();
@@ -65,8 +80,15 @@ class User
     public static function update($id, $data)
     {
         // 使用数据库更新
-        $sql = "UPDATE users SET username = ?, email = ?, phone = ?, role = ?, updated_at = NOW() WHERE id = ?";
-        $result = db_exec($sql, [$data['username'], $data['email'], $data['phone'], $data['role'] ?? 'user', $id]);
+        if (isset($data['password'])) {
+            // 如果提供了密码，包含密码字段
+            $sql = "UPDATE users SET username = ?, password = ?, email = ?, phone = ?, role = ?, updated_at = NOW() WHERE id = ?";
+            $result = db_exec($sql, [$data['username'], $data['password'], $data['email'], $data['phone'], $data['role'] ?? 'user', $id]);
+        } else {
+            // 如果没有提供密码，不更新密码字段
+            $sql = "UPDATE users SET username = ?, email = ?, phone = ?, role = ?, updated_at = NOW() WHERE id = ?";
+            $result = db_exec($sql, [$data['username'], $data['email'], $data['phone'], $data['role'] ?? 'user', $id]);
+        }
         
         return $result;
     }

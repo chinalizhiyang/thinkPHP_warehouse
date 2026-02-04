@@ -150,7 +150,7 @@ class Role
     public static function getRolePermissions($role_id)
     {
         // 使用数据库查询
-        $sql = "SELECT permission_id FROM auth_group_permissions WHERE role_id = ?";
+        $sql = "SELECT permission_id FROM auth_group_permissions WHERE group_id = ?";
         $rows = db_get_all($sql, [$role_id]);
         
         $permission_ids = [];
@@ -165,11 +165,11 @@ class Role
     public static function assignPermissions($role_id, $permission_ids)
     {
         // 先删除旧的权限关联
-        db_exec("DELETE FROM auth_group_permissions WHERE role_id = ?", [$role_id]);
+        db_exec("DELETE FROM auth_group_permissions WHERE group_id = ?", [$role_id]);
         
         // 插入新的权限关联
         foreach ($permission_ids as $permission_id) {
-            $sql = "INSERT INTO auth_group_permissions (role_id, permission_id, created_at) VALUES (?, ?, NOW())";
+            $sql = "INSERT INTO auth_group_permissions (group_id, permission_id) VALUES (?, ?)";
             db_exec($sql, [$role_id, $permission_id]);
         }
         
@@ -179,32 +179,37 @@ class Role
     // 检查用户是否有某个权限
     public static function checkPermission($user_role, $permission_name)
     {
-        // 先获取角色ID
-        $sql = "SELECT id FROM auth_group WHERE name = ?";
-        $role = db_get_row($sql, [$user_role]);
-        
-        if (!$role) {
-            // 如果数据库中没有角色记录，使用默认权限配置
-            $role_permissions = [
-                'admin' => ['user_manage', 'material_manage', 'inbound_manage', 'outbound_manage', 'inventory_manage', 'record_manage', 'inbound_history', 'outbound_history', 'role_manage'],
-                'user' => ['material_manage', 'inbound_manage', 'outbound_manage', 'inventory_manage', 'inbound_history', 'outbound_history']
-            ];
+        try {
+            // 先获取角色ID
+            $sql = "SELECT id FROM auth_group WHERE name = ?";
+            $role = db_get_row($sql, [$user_role]);
             
-            return isset($role_permissions[$user_role]) && in_array($permission_name, $role_permissions[$user_role]);
-        }
-        
-        // 获取权限ID
-        $sql = "SELECT id FROM auth_permissions WHERE name = ?";
-        $permission = db_get_row($sql, [$permission_name]);
-        
-        if (!$permission) {
+            // 如果数据库中没有角色记录，返回false
+            if (!$role) {
+                return false;
+            }
+            
+            // 获取权限ID
+            $sql = "SELECT id FROM auth_permissions WHERE name = ?";
+            $permission = db_get_row($sql, [$permission_name]);
+            
+            if (!$permission) {
+                return false;
+            }
+            
+            // 检查角色是否有该权限（注意：表中使用的是group_id而非role_id）
+            $sql = "SELECT COUNT(*) as count FROM auth_group_permissions WHERE group_id = ? AND permission_id = ?";
+            $result = db_get_row($sql, [$role['id'], $permission['id']]);
+            
+            if (!$result) {
+                return false;
+            }
+            
+            // 如果数据库中有权限记录，使用数据库中的权限分配
+            return $result['count'] > 0;
+        } catch (\Exception $e) {
+            // 如果发生数据库错误（例如表不存在），返回false
             return false;
         }
-        
-        // 检查角色是否有该权限
-        $sql = "SELECT COUNT(*) as count FROM auth_group_permissions WHERE role_id = ? AND permission_id = ?";
-        $result = db_get_row($sql, [$role['id'], $permission['id']]);
-        
-        return $result['count'] > 0;
     }
 }

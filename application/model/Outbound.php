@@ -10,116 +10,142 @@ class Outbound
     // id, order_id, material_id, quantity, unit_price, total_price, created_at
     
     // 获取出库单列表
-    public static function getList($where = [])
+    public static function getList($where = [], $page = 1, $page_size = 25, $search = '')
     {
-        // 使用数据库查询
-        $sql = "SELECT * FROM outbound_orders";
-        $orders = db_get_all($sql);
+        // 计算偏移量
+        $offset = ($page - 1) * $page_size;
         
-        // 转换字段名，保持与原来的代码兼容
-        foreach ($orders as &$order) {
-            $order['order_no'] = $order['order_number'];
+        // 构建搜索条件
+        $search_where = '';
+        $params = [];
+        if (!empty($search)) {
+            $search_where = " WHERE material_code LIKE ? OR material_name LIKE ? OR category LIKE ? OR spec LIKE ? OR receiver LIKE ? OR dept LIKE ?";
+            $search_value = "%$search%";
+            $params = array_fill(0, 6, $search_value);
         }
         
-        return $orders;
+        // 使用数据库查询，获取所有出库明细，带分页
+        $sql = "SELECT id, material_code, category, material_name, spec, unit, quantity, price, out_time, receiver, dept, remark, created_at FROM outbound" . $search_where . " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        $params[] = $page_size;
+        $params[] = $offset;
+        $data = db_get_all($sql, $params);
+        
+        // 获取总记录数
+        $total_sql = "SELECT COUNT(*) as total FROM outbound" . $search_where;
+        $total_params = $search ? array_fill(0, 6, "%$search%") : [];
+        $total = db_get_row($total_sql, $total_params)['total'];
+        
+        return [
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+            'page_size' => $page_size,
+            'search' => $search
+        ];
     }
     
     // 根据ID获取出库单
     public static function getById($id)
     {
         // 使用数据库查询
-        $sql = "SELECT * FROM outbound_orders WHERE id = ?";
-        $order = db_get_row($sql, [$id]);
+        $sql = "SELECT * FROM outbound WHERE id = ?";
+        $outbound = db_get_row($sql, [$id]);
         
-        if ($order) {
-            // 转换字段名，保持与原来的代码兼容
-            $order['order_no'] = $order['order_number'];
-            
-            // 获取出库明细
-            $sql_items = "SELECT * FROM outbound_order_items WHERE order_id = ?";
-            $items = db_get_all($sql_items, [$id]);
-            
-            // 转换明细字段名
-            $details = [];
-            foreach ($items as $item) {
-                // 获取物料信息
-                $material = Material::getById($item['material_id']);
-                
-                $details[] = [
-                    'id' => $item['id'],
-                    'outbound_id' => $id,
-                    'material_id' => $item['material_id'],
-                    'material_name' => $material['name'] ?? '',
-                    'material_code' => $material['code'] ?? '',
-                    'unit' => $material['unit'] ?? '',
-                    'price' => $item['unit_price'],
-                    'quantity' => $item['quantity'],
-                    'amount' => $item['total_price']
-                ];
-            }
-            
-            $order['details'] = $details;
-            
-            return $order;
-        }
-        
-        return false;
+        return $outbound;
     }
     
     // 创建出库单
     public static function create($data)
     {
-        // 使用数据库插入
-        $order_no = 'OUT' . date('Ymd') . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
-        $sql = "INSERT INTO outbound_orders (order_number, customer, operator, status, total_amount, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
-        $result = db_exec($sql, [$order_no, $data['customer'] ?? '', $_SESSION['user']['username'] ?? 'admin', 1, $data['total_amount'] ?? 0]);
+        // 获取表单数据
+        $out_no = $data['out_no'] ?? '';
+        $out_time = $data['out_time'] ?? date('Y-m-d H:i:s');
+        $dept = $data['dept'] ?? '';
+        $receiver = $data['receiver'] ?? '';
         
-        if ($result) {
-            $conn = db_connect();
-            $id = $conn->insert_id;
-            $conn->close();
-            
-            // 创建出库明细
-            if (isset($data['details']) && is_array($data['details'])) {
-                foreach ($data['details'] as $detail) {
-                    $sql_item = "INSERT INTO outbound_order_items (order_id, material_id, quantity, unit_price, total_price, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
-                    db_exec($sql_item, [$id, $detail['material_id'], $detail['quantity'], $detail['price'], $detail['amount']]);
+        // 处理物料列表
+        $material_codes = $data['material_code'] ?? [];
+        $categories = $data['category'] ?? [];
+        $material_names = $data['material_name'] ?? [];
+        $specs = $data['spec'] ?? [];
+        $units = $data['unit'] ?? [];
+        $prices = $data['price'] ?? [];
+        $quantities = $data['quantity'] ?? [];
+        $remarks = $data['remark'] ?? [];
+        
+        foreach ($material_codes as $key => $material_code) {
+            if (!empty($material_code) && !empty($quantities[$key])) {
+                // 获取物料信息
+                $material = Material::getByCode($material_code);
+                
+                if ($material) {
+                    // 检查库存是否足够
+                    if ($material['stock'] < $quantities[$key]) {
+                        continue; // 库存不足，跳过
+                    }
+                    
+                    // 插入到outbound表
+                    $sql = "INSERT INTO outbound (material_code, category, material_name, spec, unit, quantity, price, out_time, receiver, dept, remark, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+                    db_exec($sql, [
+                        $material_code,
+                        $categories[$key] ?? $material['category'],
+                        $material_names[$key] ?? $material['name'],
+                        $specs[$key] ?? $material['spec'],
+                        $units[$key] ?? $material['unit'],
+                        $quantities[$key],
+                        $prices[$key] ?? $material['price'],
+                        $out_time,
+                        $receiver,
+                        $dept,
+                        $remarks[$key] ?? ''
+                    ]);
                     
                     // 更新物料库存
-                    $material = Material::getById($detail['material_id']);
                     if ($material) {
-                        $new_stock = $material['stock'] - $detail['quantity'];
-                        db_exec("UPDATE materials SET stock = ? WHERE id = ?", [$new_stock, $detail['material_id']]);
-                        
-                        // 记录到出库历史表
-                        $sql_history = "INSERT INTO outbound_history (out_no, quantity, out_time, dept, receiver, remark, created_at, category, name, spec, unit) VALUES (?, ?, NOW(), ?, ?, ?, NOW(), ?, ?, ?, ?)";
-                        db_exec($sql_history, [
-                            $order_no,
-                            $detail['quantity'],
-                            '生产部门', // 默认部门，可根据实际情况调整
-                            $_SESSION['user']['username'] ?? 'admin',
-                            '',
-                            $material['category'] ?? '',
-                            $material['name'] ?? '',
-                            $material['spec'] ?? '',
-                            $material['unit'] ?? ''
-                        ]);
+                        $new_stock = $material['stock'] - $quantities[$key];
+                        db_exec("UPDATE materials SET stock = ? WHERE id = ?", [$new_stock, $material['id']]);
                     }
+                    
+                    // 记录到出库历史表
+                    $sql_history = "INSERT INTO outbound_history (out_no, quantity, out_time, dept, receiver, remark, created_at, category, name, spec, unit) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)";
+                    db_exec($sql_history, [
+                        $out_no,
+                        $quantities[$key],
+                        $out_time,
+                        $dept,
+                        $receiver,
+                        $remarks[$key] ?? '',
+                        $material['category'] ?? '',
+                        $material['name'] ?? '',
+                        $material['spec'] ?? '',
+                        $material['unit'] ?? ''
+                    ]);
                 }
             }
-            
-            return self::getById($id);
         }
         
-        return false;
+        return true;
     }
     
     // 更新出库单
     public static function update($id, $data)
     {
         // 使用数据库更新
-        $sql = "UPDATE outbound_orders SET customer = ?, total_amount = ?, updated_at = NOW() WHERE id = ?";
-        $result = db_exec($sql, [$data['customer'] ?? '', $data['total_amount'] ?? 0, $id]);
+        $sql = "UPDATE outbound SET material_code = ?, category = ?, material_name = ?, spec = ?, unit = ?, quantity = ?, price = ?, out_time = ?, receiver = ?, dept = ?, remark = ?, updated_at = NOW() WHERE id = ?";
+        $result = db_exec($sql, [
+            $data['material_code'] ?? '',
+            $data['category'] ?? '',
+            $data['material_name'] ?? '',
+            $data['spec'] ?? '',
+            $data['unit'] ?? '',
+            $data['quantity'] ?? 0,
+            $data['price'] ?? 0,
+            $data['out_time'] ?? date('Y-m-d H:i:s'),
+            $data['receiver'] ?? '',
+            $data['dept'] ?? '',
+            $data['remark'] ?? '',
+            $id
+        ]);
         
         return $result;
     }
@@ -127,11 +153,8 @@ class Outbound
     // 删除出库单
     public static function delete($id)
     {
-        // 先删除出库明细
-        db_exec("DELETE FROM outbound_order_items WHERE order_id = ?", [$id]);
-        
-        // 再删除出库单
-        $sql = "DELETE FROM outbound_orders WHERE id = ?";
+        // 从outbound表中删除
+        $sql = "DELETE FROM outbound WHERE id = ?";
         $result = db_exec($sql, [$id]);
         
         return $result;

@@ -1,0 +1,1 @@
+ php -S localhost:8080 -t c:\wamp64\www c:\wamp64\www\public\router.php

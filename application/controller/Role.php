@@ -146,13 +146,25 @@ class Role
             $result = RoleModel::assignPermissions($id, $permission_ids);
             
             if ($result) {
-                redirect('role', '分配权限成功');
+                redirect('user/role-permission', '分配权限成功');
             } else {
                 redirect('role/assign/' . $id, '分配权限失败');
             }
         }
         
+        // 按模块分组权限
+        $permissions_by_module = [];
+        foreach ($permissions as $permission) {
+            $permissions_by_module[$permission['module']][] = $permission;
+        }
+        ksort($permissions_by_module);
+        
         // 显示分配权限页面
-        return view('role/assign', ['role' => $role, 'permissions' => $permissions, 'role_permissions' => $role_permissions]);
+        return view('role/assign', [
+            'role' => $role, 
+            'permissions' => $permissions, 
+            'permissions_by_module' => $permissions_by_module,
+            'role_permissions' => $role_permissions
+        ]);
     }
 }

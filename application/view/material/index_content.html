@@ -1,0 +1,116 @@
+<div class="mt-3 mb-3">
+    <a href="/material/add" class="btn btn-primary">添加物料</a>
+    <a href="/material/category" class="btn btn-secondary">分类管理</a>
+</div>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>物料名称</th>
+            <th>物料编码</th>
+            <th>分类</th>
+            <th>单位</th>
+            <th>单价</th>
+            <th>库存</th>
+            <th>最小库存</th>
+            <th>状态</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {if $materials}
+            {foreach $materials as $material}
+            <tr>
+                <td>{$material.id}</td>
+                <td>{$material.name}</td>
+                <td>{$material.code}</td>
+                <td>{$material.category_name}</td>
+                <td>{$material.unit}</td>
+                <td>{$material.price}</td>
+                <td>{$material.stock}</td>
+                <td>{$material.min_stock}</td>
+                <td>{$material.status ? '启用' : '禁用'}</td>
+                <td>
+                    <a href="/material/edit/{$material.id}" class="btn btn-sm btn-primary">编辑</a>
+                    <a href="/material/delete/{$material.id}" class="btn btn-sm btn-danger">删除</a>
+                </td>
+            </tr>
+            {/foreach}
+        {else}
+            <tr><td colspan="10" class="empty">暂无物料记录</td></tr>
+        {/if}
+    </tbody>
+</table>
+
+<!-- 分页控件 -->
+{if $total_pages > 1}
+<nav aria-label="分页">
+    <ul class="pagination">
+        <li class="page-item {if $page == 1}disabled{/if}">
+            <a class="page-link" href="/material?page={$page - 1}&page_size={$page_size}" aria-label="上一页">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        
+        <!-- 显示第一页 -->
+        {if $page > 3}
+        <li class="page-item">
+            <a class="page-link" href="/material?page=1&page_size={$page_size}">1</a>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link">...</span>
+        </li>
+        {/if}
+        
+        <!-- 显示当前页附近的页码 -->
+        {if $total_pages <= 5}
+            <!-- 总页数小于等于5，显示所有页码 -->
+            {foreach range(1, $total_pages) as $page_num}
+            <li class="page-item {if $page == $page_num}active{/if}">
+                <a class="page-link" href="/material?page={$page_num}&page_size={$page_size}">{$page_num}</a>
+            </li>
+            {/foreach}
+        {else}
+            <!-- 总页数大于5，显示当前页附近的页码 -->
+            {if $page <= 3}
+                <!-- 当前页在前面，显示1-5页 -->
+                {foreach range(1, 5) as $page_num}
+                <li class="page-item {if $page == $page_num}active{/if}">
+                    <a class="page-link" href="/material?page={$page_num}&page_size={$page_size}">{$page_num}</a>
+                </li>
+                {/foreach}
+            {elseif $page >= $total_pages - 2}
+                <!-- 当前页在后面，显示最后5页 -->
+                {foreach range($total_pages - 4, $total_pages) as $page_num}
+                <li class="page-item {if $page == $page_num}active{/if}">
+                    <a class="page-link" href="/material?page={$page_num}&page_size={$page_size}">{$page_num}</a>
+                </li>
+                {/foreach}
+            {else}
+                <!-- 当前页在中间，显示当前页附近的5页 -->
+                {foreach range($page - 2, $page + 2) as $page_num}
+                <li class="page-item {if $page == $page_num}active{/if}">
+                    <a class="page-link" href="/material?page={$page_num}&page_size={$page_size}">{$page_num}</a>
+                </li>
+                {/foreach}
+            {/if}
+        {/if}
+        
+        <!-- 显示最后一页 -->
+        {if $page < $total_pages - 2}
+        <li class="page-item disabled">
+            <span class="page-link">...</span>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="/material?page={$total_pages}&page_size={$page_size}">{$total_pages}</a>
+        </li>
+        {/if}
+        
+        <li class="page-item {if $page == $total_pages}disabled{/if}">
+            <a class="page-link" href="/material?page={$page + 1}&page_size={$page_size}" aria-label="下一页">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+{/if}

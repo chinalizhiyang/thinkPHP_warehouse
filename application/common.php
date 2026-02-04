@@ -46,11 +46,22 @@ function generate_random_string($length = 32)
  */
 function redirect($url, $message = '', $wait = 3)
 {
+    // 确保URL是绝对路径
+    if (strpos($url, 'http') !== 0) {
+        if (strpos($url, '/') !== 0) {
+            // 相对路径，转换为绝对路径
+            $url = '/' . $url;
+        }
+        $full_url = 'http://' . $_SERVER['HTTP_HOST'] . $url;
+    } else {
+        $full_url = $url;
+    }
+    
     if (empty($message)) {
-        header('Location: ' . $url);
+        header('Location: ' . $full_url);
         exit;
     } else {
-        echo "<script>alert('$message');setTimeout(function(){window.location.href='$url';},{$wait}000);</script>";
+        echo "<script>alert('$message');setTimeout(function(){window.location.href='$full_url';},{$wait}000);</script>";
         exit;
     }
 }
@@ -66,12 +77,21 @@ function check_permission($permission)
         return false;
     }
     
+    if (!isset($_SESSION['user'])) {
+        return false;
+    }
+    
     $user_role = $_SESSION['user']['role'];
     
     // 引入角色模型
     require_once __DIR__ . '/model/Role.php';
     
-    return \app\model\Role::checkPermission($user_role, $permission);
+    $result = \app\model\Role::checkPermission($user_role, $permission);
+    
+    // 添加调试输出
+    // error_log("检查权限: $permission, 用户角色: $user_role, 结果: " . ($result ? 'true' : 'false'));
+    
+    return $result;
 }
 
 /**
@@ -86,74 +106,166 @@ function get_nav_menu()
     
     $user_role = $_SESSION['user']['role'];
     
-    // 定义所有菜单
+    // 定义所有菜单（带下拉菜单结构）
     $all_menu = [
         [
-            'name' => '首页',
-            'url' => '/',
-            'permission' => ''
-        ],
-        [
-            'name' => '用户管理',
-            'url' => '/user',
-            'permission' => 'user_manage'
-        ],
-        [
             'name' => '物料管理',
-            'url' => '/material',
-            'permission' => 'material_manage'
+            'url' => '#',
+            'permission' => 'material_manage',
+            'children' => [
+                [
+                    'name' => '物料列表',
+                    'url' => '/material',
+                    'permission' => 'material_manage'
+                ],
+                [
+                    'name' => '添加物料',
+                    'url' => '/material/add',
+                    'permission' => 'material_manage'
+                ]
+            ]
         ],
+
         [
             'name' => '入库管理',
-            'url' => '/inbound',
-            'permission' => 'inbound_manage'
+            'url' => '#',
+            'permission' => 'inbound_manage',
+            'children' => [
+                [
+                    'name' => '入库记录',
+                    'url' => '/inbound',
+                    'permission' => 'inbound'
+                ],
+                [
+                    'name' => '创建入库单',
+                    'url' => '/inbound/add',
+                    'permission' => 'inbound_manage'
+                ]
+            ]
         ],
         [
             'name' => '出库管理',
-            'url' => '/outbound',
-            'permission' => 'outbound_manage'
+            'url' => '#',
+            'permission' => 'outbound_manage',
+            'children' => [
+                [
+                    'name' => '出库记录',
+                    'url' => '/outbound',
+                    'permission' => 'outbound'
+                ],
+                [
+                    'name' => '创建出库单',
+                    'url' => '/outbound/add',
+                    'permission' => 'outbound_manage'
+                ]
+            ]
         ],
         [
             'name' => '库存管理',
-            'url' => '/inventory',
-            'permission' => 'inventory_manage'
+            'url' => '#',
+            'permission' => 'inventory_manage',
+            'children' => [
+                [
+                    'name' => '库存查询',
+                    'url' => '/inventory',
+                    'permission' => 'inventory_manage'
+                ],
+                [
+                    'name' => '月度库存',
+                    'url' => '/inventory/report',
+                    'permission' => 'inventory_manage'
+                ]
+            ]
         ],
         [
-            'name' => '记录管理',
-            'url' => '/record',
-            'permission' => 'record_manage'
+            'name' => '历史查询',
+            'url' => '#',
+            'permission' => '',
+            'children' => [
+                [
+                    'name' => '入库总记录',
+                    'url' => '/inbound-history',
+                    'permission' => 'inbound_history'
+                ],
+                [
+                    'name' => '出库总记录',
+                    'url' => '/outbound-history',
+                    'permission' => 'outbound_history'
+                ]
+            ]
         ],
         [
-            'name' => '入库历史',
-            'url' => '/inbound-history',
-            'permission' => 'inbound_history'
+            'name' => '系统管理',
+            'url' => '#',
+            'permission' => 'record_manage',
+            'children' => [
+                [
+                    'name' => '操作记录',
+                    'url' => '/record',
+                    'permission' => 'record_manage'
+                ],
+                [
+                    'name' => '系统日志',
+                    'url' => '/record/system',
+                    'permission' => 'record_manage'
+                ],
+                [
+                    'name' => '数据备份',
+                    'url' => '/record/backup',
+                    'permission' => 'record_manage'
+                ]
+            ]
         ],
         [
-            'name' => '出库历史',
-            'url' => '/outbound-history',
-            'permission' => 'outbound_history'
-        ],
-        [
-            'name' => '角色管理',
-            'url' => '/role',
-            'permission' => 'role_manage'
-        ],
-        [
-            'name' => '个人资料',
-            'url' => '/user/profile',
-            'permission' => ''
-        ],
-        [
-            'name' => '注销',
-            'url' => '/logout',
-            'permission' => ''
+            'name' => '用户管理',
+            'url' => '#',
+            'permission' => 'user_manage',
+            'children' => [
+                [
+                    'name' => '用户列表',
+                    'url' => '/user',
+                    'permission' => 'user_manage'
+                ],
+                [
+                    'name' => '添加用户',
+                    'url' => '/user/add',
+                    'permission' => 'user_manage'
+                ],
+                [
+                    'name' => '角色权限管理',
+                    'url' => '/user/role-permission',
+                    'permission' => 'user_manage'
+                ]
+            ]
         ]
     ];
     
     // 根据权限过滤菜单
     $menu = [];
     foreach ($all_menu as $item) {
-        if (empty($item['permission']) || check_permission($item['permission'])) {
+        // 先处理子菜单，不管父菜单的权限
+        $has_children = false;
+        $filtered_children = [];
+        if (isset($item['children'])) {
+            foreach ($item['children'] as $child) {
+                // 直接检查子菜单权限
+                $has_permission = empty($child['permission']) || check_permission($child['permission']);
+                // 调试信息
+                // error_log("菜单项: " . (isset($child['name']) ? $child['name'] : 'unknown') . ", 权限要求: " . (isset($child['permission']) ? $child['permission'] : 'none') . ", 有权限: " . (\$has_permission ? 'true' : 'false'));
+                if ($has_permission) {
+                    $filtered_children[] = $child;
+                    $has_children = true;
+                }
+            }
+        }
+        
+        // 如果有子菜单，或者父菜单有权限，就添加到菜单中
+        $show_item = $has_children || empty($item['permission']) || check_permission($item['permission']);
+        // error_log("菜单项: " . (isset($item['name']) ? $item['name'] : 'unknown') . ", 显示: " . (\$show_item ? 'true' : 'false'));
+        if ($show_item) {
+            if ($has_children) {
+                $item['children'] = $filtered_children;
+            }
             $menu[] = $item;
         }
     }
@@ -168,6 +280,9 @@ function get_nav_menu()
 function db_connect()
 {
     $config = require __DIR__ . '/config/database.php';
+    
+    // 创建 mysqli 对象时禁用异常抛出
+    mysqli_report(MYSQLI_REPORT_OFF);
     
     $conn = new mysqli(
         $config['hostname'],
@@ -194,38 +309,42 @@ function db_connect()
  */
 function db_query($sql, $params = [])
 {
-    $conn = db_connect();
-    
-    if ($stmt = $conn->prepare($sql)) {
-        if (!empty($params)) {
-            $types = '';
-            $values = [];
-            
-            foreach ($params as $param) {
-                if (is_int($param)) {
-                    $types .= 'i';
-                } elseif (is_double($param)) {
-                    $types .= 'd';
-                } else {
-                    $types .= 's';
+    try {
+        $conn = db_connect();
+        
+        if ($stmt = $conn->prepare($sql)) {
+            if (!empty($params)) {
+                $types = '';
+                $bind_params = [];
+                
+                foreach ($params as $param) {
+                    if (is_int($param)) {
+                        $types .= 'i';
+                    } elseif (is_double($param)) {
+                        $types .= 'd';
+                    } else {
+                        $types .= 's';
+                    }
+                    $bind_params[] = $param;
                 }
-                $values[] = &$param;
+                
+                // 使用可变参数绑定
+                $stmt->bind_param($types, ...$bind_params);
             }
             
-            array_unshift($values, $types);
-            call_user_func_array([$stmt, 'bind_param'], $values);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $stmt->close();
+        } else {
+            $result = false;
         }
         
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $stmt->close();
-    } else {
-        $result = false;
+        $conn->close();
+        
+        return $result;
+    } catch (Exception $e) {
+        return false;
     }
-    
-    $conn->close();
-    
-    return $result;
 }
 
 /**
@@ -274,37 +393,41 @@ function db_get_all($sql, $params = [])
  */
 function db_exec($sql, $params = [])
 {
-    $conn = db_connect();
-    
-    if ($stmt = $conn->prepare($sql)) {
-        if (!empty($params)) {
-            $types = '';
-            $values = [];
-            
-            foreach ($params as $param) {
-                if (is_int($param)) {
-                    $types .= 'i';
-                } elseif (is_double($param)) {
-                    $types .= 'd';
-                } else {
-                    $types .= 's';
+    try {
+        $conn = db_connect();
+        
+        if ($stmt = $conn->prepare($sql)) {
+            if (!empty($params)) {
+                $types = '';
+                $bind_params = [];
+                
+                foreach ($params as $param) {
+                    if (is_int($param)) {
+                        $types .= 'i';
+                    } elseif (is_double($param)) {
+                        $types .= 'd';
+                    } else {
+                        $types .= 's';
+                    }
+                    $bind_params[] = $param;
                 }
-                $values[] = &$param;
+                
+                // 使用可变参数绑定，避免引用传递的问题
+                $stmt->bind_param($types, ...$bind_params);
             }
             
-            array_unshift($values, $types);
-            call_user_func_array([$stmt, 'bind_param'], $values);
+            $result = $stmt->execute();
+            $stmt->close();
+        } else {
+            $result = false;
         }
         
-        $result = $stmt->execute();
-        $stmt->close();
-    } else {
-        $result = false;
+        $conn->close();
+        
+        return $result;
+    } catch (Exception $e) {
+        return false;
     }
-    
-    $conn->close();
-    
-    return $result;
 }
 
 /**

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $title ?? '康泽环保仓储管理系统'; ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --sidebar-color: #2c3e50;
+            --sidebar-light-color: #34495e;
+            --sidebar-hover-color: #1abc9c;
+            --content-bg-color: #ecf0f1;
+            --border-color: #ddd;
+            --transition-speed: 0.3s;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--content-bg-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* 主容器布局 */
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 左侧侧边栏 */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-color);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all var(--transition-speed) ease;
+            z-index: 1000;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 侧边栏头部 */
+        .sidebar-header {
+            padding: 1.5rem;
+            background-color: var(--sidebar-light-color);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .sidebar-header .logo-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--sidebar-hover-color);
+        }
+        
+        /* 侧边栏菜单 */
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: all var(--transition-speed) ease;
+            font-weight: 500;
+        }
+        
+        .sidebar-menu a:hover {
+            background-color: var(--sidebar-hover-color);
+            color: white;
+            padding-left: 1.75rem;
+        }
+        
+        .sidebar-menu a.active {
+            background-color: var(--primary-color);
+            border-left: 4px solid var(--sidebar-hover-color);
+        }
+        
+        .sidebar-menu .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        /* 下拉菜单 */
+        .sidebar-menu .submenu {
+            background-color: var(--sidebar-light-color);
+            list-style: none;
+            display: none;
+        }
+        
+        .sidebar-menu .submenu.open {
+            display: block;
+        }
+        
+        .sidebar-menu .submenu a {
+            padding: 0.75rem 2.5rem;
+            font-size: 0.9rem;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-menu .submenu a:hover {
+            background-color: var(--sidebar-hover-color);
+            padding-left: 2.75rem;
+        }
+        
+        /* 右侧内容区域 */
+        .content {
+            margin-left: 250px;
+            flex: 1;
+            transition: all var(--transition-speed) ease;
+            min-height: 100vh;
+        }
+        
+        /* 内容头部 */
+        .content-header {
+            background-color: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .content-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-info span {
+            font-weight: 500;
+        }
+        
+        .user-info a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .user-info a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 内容主体 */
+        .content-body {
+            padding: 2rem;
+            background-color: var(--content-bg-color);
+            min-height: calc(100vh - 73px);
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background-color: var(--light-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* 间距工具类 */
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .mt-4 {
+            margin-top: 1.5rem;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            transition: all var(--transition-speed) ease;
+        }
+        
+        /* 表格样式 */
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table th {
+            background-color: var(--light-color);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .content {
+                margin-left: 0;
+            }
+            
+            .content-header {
+                padding: 1rem;
+            }
+            
+            .content-body {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- 左侧侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="fa fa-industry"></i>
+                </div>
+                <h3>康泽环保仓储管理系统</h3>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <!-- 首页 -->
+                <li>
+                    <a href="/" <?php if ($current_controller == 'Index'): ?>class="active"<?php endif; ?>>
+                        <i class="fa fa-home menu-icon"></i>
+                        <span>首页</span>
+                    </a>
+                </li>
+                
+                <!-- 动态生成菜单 -->
+                <?php foreach ($menu as $item): ?>
+                <?php if (isset($item['children']) && !empty($item['children'])): ?>
+                <!-- 有子菜单的菜单项 -->
+                <li>
+                    <a href="javascript:void(0);" class="menu-toggle">
+                        <i class="fa fa-folder menu-icon"></i>
+                        <span><?php echo $item['name']; ?></span>
+                        <i class="fa fa-chevron-down menu-icon ml-auto"></i>
+                    </a>
+                    <ul class="submenu">
+                        <?php foreach ($item['children'] as $child): ?>
+                        <li>
+                            <a href="<?php echo $child['url']; ?>">
+                                <i class="fa fa-angle-right menu-icon"></i>
+                                <span><?php echo $child['name']; ?></span>
+                            </a>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </li>
+                <?php else: ?>
+                <!-- 无子菜单的菜单项 -->
+                <li>
+                    <a href="<?php echo $item['url']; ?>">
+                        <i class="fa fa-file menu-icon"></i>
+                        <span><?php echo $item['name']; ?></span>
+                    </a>
+                </li>
+                <?php endif; ?>
+                <?php endforeach; ?>
+                
+                <!-- 退出登录 -->
+                <li>
+                    <a href="/logout">
+                        <i class="fa fa-sign-out menu-icon"></i>
+                        <span>退出登录</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- 右侧内容区域 -->
+        <main class="content">
+            <!-- 内容头部 -->
+            <header class="content-header">
+                <h1><?php echo $title ?? '首页'; ?></h1>
+                <div class="user-info">
+                    <span>欢迎，<?php echo $_SESSION['user']['username']; ?></span>
+                    <a href="/logout"><i class="fa fa-power-off"></i> 退出</a>
+                </div>
+            </header>
+            
+            <!-- 内容主体 -->
+            <div class="content-body">
+                <?php echo $content; ?>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 侧边栏菜单切换
+        document.addEventListener('DOMContentLoaded', function() {
+            // 菜单切换功能
+            const menuToggles = document.querySelectorAll('.menu-toggle');
+            menuToggles.forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const submenu = this.nextElementSibling;
+                    const icon = this.querySelector('.fa-chevron-down');
+                    
+                    // 切换子菜单显示状态
+                    submenu.classList.toggle('open');
+                    
+                    // 旋转箭头图标
+                    icon.style.transform = submenu.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+                });
+            });
+            
+            // 当前页面菜单高亮
+            const currentUrl = window.location.pathname;
+            const menuLinks = document.querySelectorAll('.sidebar-menu a');
+            
+            menuLinks.forEach(link => {
+                // 跳过菜单切换按钮
+                if (link.classList.contains('menu-toggle')) {
+                    return;
+                }
+                
+                const linkUrl = new URL(link.href).pathname;
+                if (linkUrl === currentUrl) {
+                    link.classList.add('active');
+                    
+                    // 如果是子菜单，展开父菜单
+                    const parentMenu = link.closest('.submenu');
+                    if (parentMenu) {
+                        parentMenu.classList.add('open');
+                        const toggleIcon = parentMenu.previousElementSibling.querySelector('.fa-chevron-down');
+                        if (toggleIcon) {
+                            toggleIcon.style.transform = 'rotate(180deg)';
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<div class="card">
+    <div class="card-header">
+        <h3 class="mb-0"><i class="fa fa-edit"></i> 编辑物料</h3>
+    </div>
+    <div class="card-body">
+        <?php if (isset($_SESSION['message'])): ?>
+        <div class="alert alert-info">
+            <?php echo $_SESSION['message']; unset($_SESSION['message']); ?>
+        </div>
+        <?php endif; ?>
+        <form action="/material/edit/<?php echo $material['id']; ?>" method="post">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">物料名称 *</label>
+                        <input type="text" class="form-control" id="name" name="name" value="<?php echo $material['name']; ?>" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="code" class="form-label">物料编码 *</label>
+                        <input type="text" class="form-control" id="code" name="code" value="<?php echo $material['code']; ?>" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="category_id" class="form-label">物料类别 *</label>
+                        <input type="text" class="form-control" id="category_id" name="category_id" value="<?php echo $material['category_id']; ?>" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="spec" class="form-label">规格型号</label>
+                        <input type="text" class="form-control" id="spec" name="spec" value="<?php echo $material['spec']; ?>">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="unit" class="form-label">单位 *</label>
+                        <input type="text" class="form-control" id="unit" name="unit" value="<?php echo $material['unit']; ?>" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="price" class="form-label">单价 *</label>
+                        <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" value="<?php echo $material['price']; ?>" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="stock" class="form-label">库存</label>
+                        <input type="number" class="form-control" id="stock" name="stock" value="<?php echo $material['stock']; ?>" readonly>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="location" class="form-label">存放位置</label>
+                        <input type="text" class="form-control" id="location" name="location" value="<?php echo $material['location']; ?>">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="supplier" class="form-label">供应商</label>
+                        <input type="text" class="form-control" id="supplier" name="supplier" value="<?php echo $material['supplier']; ?>">
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label for="contact_info" class="form-label">联系方式</label>
+                        <input type="text" class="form-control" id="contact_info" name="contact_info" value="<?php echo $material['contact_info']; ?>">
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label for="description" class="form-label">描述</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"><?php echo $material['description']; ?></textarea>
+                    </div>
+                </div>
+            </div>           
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-save"></i> 保存
+                </button>
+                <a href="/material" class="btn btn-secondary">
+                    <i class="fa fa-times"></i> 取消
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
