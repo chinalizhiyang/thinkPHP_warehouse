@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 echo.
 echo =============================================
 echo    仓储管理系统 - 推送至GitHub
@@ -40,7 +41,7 @@ git commit -m "Initial commit: PHP仓储管理系统(ThinkPHP版)"
 
 echo.
 echo 步骤5: 添加远程仓库并推送...
-set REPO_URL="git@github.com:chinalizhiyang/thinkPHP_warehouse.git"
+set REPO_URL=git@github.com:chinalizhiyang/thinkPHP_warehouse.git
 
 echo 正在使用仓库地址: %REPO_URL%
 git remote add origin %REPO_URL%
