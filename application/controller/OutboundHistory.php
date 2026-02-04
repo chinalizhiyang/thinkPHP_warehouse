@@ -96,7 +96,12 @@ class OutboundHistory
                         </div>
                         <div class="col-md-1">
                             <div class="form-group">
-                                <a href="/outbound-history/export-csv" class="btn btn-success w-100">导出CSV</a>
+                                <a href="/outbound-history/import-csv" class="btn btn-success w-100">导入CSV</a>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <a href="/outbound-history/export-csv" class="btn btn-primary w-100">导出CSV</a>
                             </div>
                         </div>
                     </div>
@@ -537,6 +542,180 @@ class OutboundHistory
         } else {
             redirect('/outbound-history', '删除失败');
         }
+    }
+    
+    // 导入CSV文件
+    public function importCsv()
+    {
+        // 检查登录状态
+        if (!isset($_SESSION['user'])) {
+            redirect('login', '请先登录');
+        }
+        
+        // 检查权限
+        if (!check_permission('outbound_history')) {
+            redirect('/', '无权限访问');
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
+            $file = $_FILES['csv_file'];
+            
+            // 检查文件类型
+            $allowed_types = ['text/csv', 'application/vnd.ms-excel', 'text/plain'];
+            if (!in_array($file['type'], $allowed_types)) {
+                redirect('/outbound-history', '文件类型不正确，请上传CSV文件');
+            }
+            
+            // 检查文件大小（限制为5MB）
+            if ($file['size'] > 5 * 1024 * 1024) {
+                redirect('/outbound-history', '文件过大，请上传小于5MB的文件');
+            }
+            
+            // 读取CSV文件
+            $handle = fopen($file['tmp_name'], 'r');
+            if (!$handle) {
+                redirect('/outbound-history', '无法读取文件');
+            }
+            
+            // 跳过第一行标题
+            $header = fgetcsv($handle, 1000, ',');
+            
+            $success_count = 0;
+            $error_count = 0;
+            $errors = [];
+            
+            // 逐行处理数据
+            while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
+                if (count($data) < 6) {
+                    $error_count++;
+                    $errors[] = "行数据不完整: " . implode(',', $data);
+                    continue;
+                }
+                
+                // 解析CSV数据
+                $outbound_data = [
+                    'out_no' => trim($data[0]),
+                    'name' => trim($data[1]),
+                    'category' => trim($data[2]),
+                    'quantity' => intval(trim($data[3])),
+                    'unit' => trim($data[4]),
+                    'out_time' => trim($data[5]),
+                    'dept' => isset($data[6]) ? trim($data[6]) : '',
+                    'receiver' => isset($data[7]) ? trim($data[7]) : '',
+                    'remark' => isset($data[8]) ? trim($data[8]) : ''
+                ];
+                
+                // 验证必要字段
+                if (empty($outbound_data['out_no']) || empty($outbound_data['name']) || $outbound_data['quantity'] <= 0) {
+                    $error_count++;
+                    $errors[] = "出库单号、物料名称和数量不能为空且数量必须大于0";
+                    continue;
+                }
+                
+                // 验证日期格式
+                if (!empty($outbound_data['out_time']) && !strtotime($outbound_data['out_time'])) {
+                    $error_count++;
+                    $errors[] = "日期格式不正确: {$outbound_data['out_time']}";
+                    continue;
+                }
+                
+                // 检查出库单号是否已存在
+                $existing_record = db_get_row("SELECT id FROM outbound_history WHERE out_no = ?", [$outbound_data['out_no']]);
+                if ($existing_record) {
+                    $error_count++;
+                    $errors[] = "出库单号 {$outbound_data['out_no']} 已存在";
+                    continue;
+                }
+                
+                // 插入数据到数据库
+                $sql = "INSERT INTO outbound_history (out_no, name, category, quantity, unit, out_time, dept, receiver, remark, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+                $result = db_exec($sql, [
+                    $outbound_data['out_no'],
+                    $outbound_data['name'],
+                    $outbound_data['category'],
+                    $outbound_data['quantity'],
+                    $outbound_data['unit'],
+                    $outbound_data['out_time'] ?: date('Y-m-d H:i:s'),
+                    $outbound_data['dept'],
+                    $outbound_data['receiver'],
+                    $outbound_data['remark']
+                ]);
+                
+                if ($result) {
+                    $success_count++;
+                } else {
+                    $error_count++;
+                    $errors[] = "插入数据失败: " . implode(',', array_slice($data, 0, 4));
+                }
+            }
+            
+            fclose($handle);
+            
+            // 记录操作日志
+            \app\model\Record::addOperation([
+                'user_id' => $_SESSION['user']['id'],
+                'action' => 'import_outbound_history_csv',
+                'target' => 'outbound_history',
+                'content' => "导入出库历史CSV文件，成功: {$success_count}条，失败: {$error_count}条"
+            ]);
+            
+            // 构建提示信息
+            $message = "导入完成！成功: {$success_count}条，失败: {$error_count}条";
+            if (!empty($errors)) {
+                $message .= "<br>错误详情:<br>" . implode('<br>', array_slice($errors, 0, 5));
+                if (count($errors) > 5) {
+                    $message .= '<br>...还有' . (count($errors) - 5) . '个错误';
+                }
+            }
+            
+            redirect('/outbound-history', $message);
+        }
+        
+        // 显示导入页面
+        $menu = get_nav_menu();
+        
+        ob_start();
+        ?>
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fa fa-file-import"></i> 导出库历史CSV文件</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <h5><i class="fa fa-info-circle"></i> CSV文件格式说明：</h5>
+                    <p class="mb-1">请按照以下格式准备CSV文件：</p>
+                    <pre class="bg-light p-3 mb-0">出库单号,物料名称,物料类别,数量,单位,出库时间,部门,领用人,备注
+OUT20240101001,螺丝,M3螺栓,50,个,2024-01-01 15:30:00,生产部,张三,生产急需</pre>
+                    <small class="text-muted">* 前4列为必填项，其余为可选项</small>
+                </div>
+                
+                <form action="/outbound-history/import-csv" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="csv_file" class="form-label">选择CSV文件</label>
+                        <input type="file" class="form-control" id="csv_file" name="csv_file" accept=".csv,text/csv" required>
+                        <div class="form-text">支持CSV格式文件，最大5MB</div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-upload"></i> 开始导入
+                        </button>
+                        <a href="/outbound-history" class="btn btn-secondary">
+                            <i class="fa fa-times"></i> 取消
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <?php
+        $content = ob_get_clean();
+        
+        return view('layout/main', [
+            'title' => '导出库历史CSV',
+            'content' => $content,
+            'menu' => $menu,
+            'current_controller' => 'OutboundHistory'
+        ]);
     }
     
     // 导出CSV

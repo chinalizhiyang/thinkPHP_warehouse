@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{$title}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -137,6 +138,16 @@
 <body>
     <div class="container">
         <h1>{$title}</h1>
+        
+        <!-- 操作按钮区域 -->
+        <div class="mb-3" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <a href="/inbound-history/import-csv" class="btn" style="background-color: #52c41a; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block;">
+                <i class="fa fa-file-import"></i> 导入CSV
+            </a>
+            <a href="/inbound-history/export-csv?keyword={$keyword|default=''}&start_date={$start_date|default=''}&end_date={$end_date|default=''}" class="btn" style="background-color: #1890ff; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block;">
+                <i class="fa fa-download"></i> 导出CSV
+            </a>
+        </div>
         
         <!-- 搜索表单 -->
         <div class="search-form">

@@ -41,6 +41,9 @@ class Material
                     <a href="/material/add" class="btn btn-primary">
                         <i class="fa fa-plus"></i> 添加物料
                     </a>
+                    <a href="/material/import-csv" class="btn btn-success">
+                        <i class="fa fa-file-import"></i> 导入CSV
+                    </a>
                 </div>
             </div>
             
@@ -63,8 +66,8 @@ class Material
                             <tr>
                                 <th>序号</th>
                                 <th>物料编码</th>
-                                <th>物料名称</th>
                                 <th>分类</th>
+                                <th>物料名称</th>
                                 <th>规格</th>
                                 <th>单位</th>
                                 <th>单价</th>
@@ -80,8 +83,8 @@ class Material
                                 <tr <?php echo $material['stock'] > 0 ? '' : 'class="table-warning"'; ?>>
                                     <td><?php echo ($page - 1) * $page_size + $index + 1; ?></td>
                                     <td><?php echo $material['code']; ?></td>
-                                    <td><?php echo $material['name']; ?></td>
                                     <td><?php echo $material['category_name'] ?? ''; ?></td>
+                                    <td><?php echo $material['name']; ?></td>
                                     <td><?php echo $material['spec'] ?? ''; ?></td>
                                     <td><?php echo $material['unit']; ?></td>
                                     <td><?php echo $material['price']; ?></td>
@@ -100,7 +103,7 @@ class Material
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="11" class="text-center py-4">
+                                    <td colspan="10" class="text-center py-4">
                                         <i class="fa fa-inbox fa-2x mb-2"></i>
                                         <p class="mb-0">暂无物料记录</p>
                                     </td>
@@ -267,8 +270,8 @@ class Material
                             <tr>
                                 <th>序号</th>
                                 <th>物料编码</th>
-                                <th>物料名称</th>
                                 <th>分类</th>
+                                <th>物料名称</th>
                                 <th>规格</th>
                                 <th>单位</th>
                                 <th>单价</th>
@@ -284,8 +287,8 @@ class Material
                                 <tr <?php echo $material['stock'] > 0 ? '' : 'class="table-warning"'; ?>>
                                     <td><?php echo ($page - 1) * $page_size + $index + 1; ?></td>
                                     <td><?php echo $material['code']; ?></td>
-                                    <td><?php echo $material['name']; ?></td>
                                     <td><?php echo $material['category_name'] ?? ''; ?></td>
+                                    <td><?php echo $material['name']; ?></td>
                                     <td><?php echo $material['spec'] ?? ''; ?></td>
                                     <td><?php echo $material['unit']; ?></td>
                                     <td><?php echo $material['price']; ?></td>
@@ -304,7 +307,7 @@ class Material
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="11" class="text-center py-4">
+                                    <td colspan="10" class="text-center py-4">
                                         <i class="fa fa-inbox fa-2x mb-2"></i>
                                         <p class="mb-0">暂无符合条件的物料记录</p>
                                     </td>
@@ -406,7 +409,6 @@ class Material
                 'category_id' => $_POST['category_id'] ?? 0,
                 'unit' => $_POST['unit'] ?? '',
                 'price' => $_POST['price'] ?? 0,
-                'min_stock' => $_POST['min_stock'] ?? 0,
                 'location' => $_POST['location'] ?? '',
                 'supplier' => $_POST['supplier'] ?? '',
                 'contact_info' => $_POST['contact_info'] ?? '',
@@ -556,5 +558,165 @@ class Material
         
         header('Content-Type: application/json');
         echo json_encode($response);
+    }
+    
+    // 导入CSV文件
+    public function importCsv()
+    {
+        // 检查登录状态
+        if (!isset($_SESSION['user'])) {
+            redirect('login', '请先登录');
+        }
+        
+        // 检查权限
+        if (!check_permission('material_manage')) {
+            redirect('/', '无权限访问');
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
+            $file = $_FILES['csv_file'];
+            
+            // 检查文件类型
+            $allowed_types = ['text/csv', 'application/vnd.ms-excel', 'text/plain'];
+            if (!in_array($file['type'], $allowed_types)) {
+                redirect('/material', '文件类型不正确，请上传CSV文件');
+            }
+            
+            // 检查文件大小（限制为5MB）
+            if ($file['size'] > 5 * 1024 * 1024) {
+                redirect('/material', '文件过大，请上传小于5MB的文件');
+            }
+            
+            // 读取CSV文件
+            $handle = fopen($file['tmp_name'], 'r');
+            if (!$handle) {
+                redirect('/material', '无法读取文件');
+            }
+            
+            // 跳过第一行标题
+            $header = fgetcsv($handle, 1000, ',');
+            
+            $success_count = 0;
+            $error_count = 0;
+            $errors = [];
+            
+            // 逐行处理数据
+            while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
+                if (count($data) < 4) {
+                    $error_count++;
+                    $errors[] = "行数据不完整: " . implode(',', $data);
+                    continue;
+                }
+                
+                // 解析CSV数据
+                $material_data = [
+                    'code' => trim($data[0]),
+                    'category' => trim($data[1]),
+                    'name' => trim($data[2]),
+                    'spec' => isset($data[3]) ? trim($data[3]) : '',
+                    'unit' => trim($data[4]),
+                    'price' => isset($data[5]) ? floatval(trim($data[5])) : 0,
+                    'stock' => isset($data[6]) ? intval(trim($data[6])) : 0,
+                    'location' => isset($data[7]) ? trim($data[7]) : '',
+                    'description' => isset($data[8]) ? trim($data[8]) : ''
+                ];
+                
+                // 验证必要字段
+                if (empty($material_data['name']) || empty($material_data['code'])) {
+                    $error_count++;
+                    $errors[] = "物料名称和编码不能为空";
+                    continue;
+                }
+                
+                // 检查物料编码是否已存在
+                $existing_material = MaterialModel::getByCode($material_data['code']);
+                if ($existing_material) {
+                    // 更新现有物料
+                    $result = MaterialModel::update($existing_material['id'], $material_data);
+                    if ($result) {
+                        $success_count++;
+                    } else {
+                        $error_count++;
+                        $errors[] = "更新物料 {$material_data['code']} 失败";
+                    }
+                } else {
+                    // 创建新物料
+                    $material = MaterialModel::create($material_data);
+                    if ($material) {
+                        $success_count++;
+                    } else {
+                        $error_count++;
+                        $errors[] = "创建物料 {$material_data['code']} 失败";
+                    }
+                }
+            }
+            
+            fclose($handle);
+            
+            // 记录操作日志
+            \app\model\Record::addOperation([
+                'user_id' => $_SESSION['user']['id'],
+                'action' => 'import_material_csv',
+                'target' => 'material',
+                'content' => "导入物料CSV文件，成功: {$success_count}条，失败: {$error_count}条"
+            ]);
+            
+            // 构建提示信息
+            $message = "导入完成！成功: {$success_count}条，失败: {$error_count}条";
+            if (!empty($errors)) {
+                $message .= "<br>错误详情:<br>" . implode('<br>', array_slice($errors, 0, 5));
+                if (count($errors) > 5) {
+                    $message .= '<br>...还有' . (count($errors) - 5) . '个错误';
+                }
+            }
+            
+            redirect('/material', $message);
+        }
+        
+        // 显示导入页面
+        $menu = get_nav_menu();
+        
+        ob_start();
+        ?>
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fa fa-file-import"></i> 导入物料CSV文件</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <h5><i class="fa fa-info-circle"></i> CSV文件格式说明：</h5>
+                    <p class="mb-1">请按照以下格式准备CSV文件：</p>
+                    <pre class="bg-light p-3 mb-0">物料编码,类别,物料名称,规格,单位,单价,库存,仓位,描述
+A001,原材料,示例物料A,Φ10×50mm,个,10.50,100,A区-01,这是一个示例物料</pre>
+                    <small class="text-muted">* 前3列为必填项（物料编码、类别、物料名称），其余为可选项</small>
+                </div>
+                
+                <form action="/material/import-csv" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="csv_file" class="form-label">选择CSV文件</label>
+                        <input type="file" class="form-control" id="csv_file" name="csv_file" accept=".csv,text/csv" required>
+                        <div class="form-text">支持CSV格式文件，最大5MB</div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-upload"></i> 开始导入
+                        </button>
+                        <a href="/material" class="btn btn-secondary">
+                            <i class="fa fa-times"></i> 取消
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <?php
+        $content = ob_get_clean();
+        
+        return view('layout/main', [
+            'title' => '导入物料CSV',
+            'content' => $content,
+            'menu' => $menu,
+            'current_controller' => 'Material'
+        ]);
     }
 }

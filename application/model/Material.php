@@ -32,7 +32,6 @@ class Material
             $material['code'] = $material['material_code'];
             $material['category_id'] = $material['category'];
             $material['category_name'] = $material['category'];
-            $material['min_stock'] = 0; // 兼容旧字段
             $material['status'] = 1; // 兼容旧字段
         }
         
@@ -51,7 +50,6 @@ class Material
             $material['code'] = $material['material_code'];
             $material['category_id'] = $material['category'];
             $material['category_name'] = $material['category'];
-            $material['min_stock'] = 0; // 兼容旧字段
             $material['status'] = 1; // 兼容旧字段
             
             return $material;
@@ -72,7 +70,6 @@ class Material
             $material['code'] = $material['material_code'];
             $material['category_id'] = $material['category'];
             $material['category_name'] = $material['category'];
-            $material['min_stock'] = 0; // 兼容旧字段
             $material['status'] = 1; // 兼容旧字段
             
             return $material;

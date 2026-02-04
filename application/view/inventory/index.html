@@ -20,7 +20,7 @@
             <h4>库存预警</h4>
             <ul>
                 {foreach $warnings as $warning}
-                <li>{$warning.material_name} ({$warning.material_code}) - 当前库存: {$warning.stock}, 最小库存: {$warning.min_stock}</li>
+                <li>{$warning.material_name} ({$warning.material_code}) - 当前库存: {$warning.stock}</li>
                 {/foreach}
             </ul>
         </div>
@@ -37,7 +37,6 @@
                     <th>单位</th>
                     <th>单价</th>
                     <th>库存</th>
-                    <th>最小库存</th>
                     <th>状态</th>
                 </tr>
             </thead>
@@ -51,7 +50,6 @@
                     <td>{$inventory.unit}</td>
                     <td>{$inventory.price}</td>
                     <td>{$inventory.stock}</td>
-                    <td>{$inventory.min_stock}</td>
                     <td>{$inventory.status ? '正常' : '禁用'}</td>
                 </tr>
                 {/foreach}

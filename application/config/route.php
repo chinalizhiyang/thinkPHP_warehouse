@@ -29,6 +29,7 @@ return [
         'material/delete/:id' => 'material/delete',
         'material/search' => 'material/search',
         'material/get-by-code/:code' => 'material/getByCode',
+        'material/import-csv' => 'material/importCsv',
         
         // 入库相关
         'inbound' => 'inbound/index',
@@ -65,6 +66,7 @@ return [
         'inbound-history/delete/:id' => 'inbound_history/delete',
         'inbound-history/search' => 'inbound_history/search',
         'inbound-history/export-csv' => 'inbound_history/exportCsv',
+        'inbound-history/import-csv' => 'inbound_history/importCsv',
         
         // 出库历史相关
         'outbound-history' => 'outbound_history/index',
@@ -73,5 +75,6 @@ return [
         'outbound-history/delete/:id' => 'outbound_history/delete',
         'outbound-history/search' => 'outbound_history/search',
         'outbound-history/export-csv' => 'outbound_history/exportCsv',
+        'outbound-history/import-csv' => 'outbound_history/importCsv',
     ],
 ];

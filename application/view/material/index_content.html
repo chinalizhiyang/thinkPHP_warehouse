@@ -12,7 +12,6 @@
             <th>单位</th>
             <th>单价</th>
             <th>库存</th>
-            <th>最小库存</th>
             <th>状态</th>
             <th>操作</th>
         </tr>
@@ -28,7 +27,6 @@
                 <td>{$material.unit}</td>
                 <td>{$material.price}</td>
                 <td>{$material.stock}</td>
-                <td>{$material.min_stock}</td>
                 <td>{$material.status ? '启用' : '禁用'}</td>
                 <td>
                     <a href="/material/edit/{$material.id}" class="btn btn-sm btn-primary">编辑</a>
@@ -37,7 +35,7 @@
             </tr>
             {/foreach}
         {else}
-            <tr><td colspan="10" class="empty">暂无物料记录</td></tr>
+            <tr><td colspan="9" class="empty">暂无物料记录</td></tr>
         {/if}
     </tbody>
 </table>
