@@ -89,16 +89,19 @@ chmod -R 777 runtime/
 - 入库单创建和审批
 - 入库历史查询
 - 双表记录机制（inbound + inbound_history）
+- inbound_history数据表可以导入没有系统前的记录，方面查询
 
 ### 出库管理
 - 出库申请和审批
 - 出库历史追踪
 - 领用部门管理
+- 双表记录机制（outbound + outbound_history）
+- outbound_history数据表可以导入没有系统前的记录，方面查询
 
 ### 库存管理
 - 实时库存查询
 - 库存预警设置
-- 库存盘点功能
+
 
 ### 系统管理
 - 用户权限管理
