@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>性能优化测试页面</title>
+    <!-- 使用本地资源减少网络延迟 -->
+    <link href="/static/css/performance.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+        .perf-section { margin-bottom: 25px; }
+        .perf-test { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .perf-result {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="margin-bottom: 25px; color: #2c3e50;">⚡ 性能优化测试</h1>
+        
+        <!-- 性能测试区域 -->
+        <div class="perf-test">
+            <h3>🚀 加载性能测试</h3>
+            <button onclick="testPerformance()" class="btn-fast btn-primary-fast">
+                开始性能测试
+            </button>
+            <div id="perfResults" class="perf-result" style="display: none;"></div>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="perf-section">
+            <h3>📊 精简统计卡片</h3>
+            <div class="stats-fast">
+                <div class="stat-fast">
+                    <div class="stat-icon-fast" style="color: #3498db;">📦</div>
+                    <div class="stat-number-fast">156</div>
+                    <div class="stat-label-fast">物料总数</div>
+                </div>
+                <div class="stat-fast">
+                    <div class="stat-icon-fast" style="color: #27ae60;">✅</div>
+                    <div class="stat-number-fast">142</div>
+                    <div class="stat-label-fast">正常库存</div>
+                </div>
+                <div class="stat-fast">
+                    <div class="stat-icon-fast" style="color: #f39c12;">⚠️</div>
+                    <div class="stat-number-fast">10</div>
+                    <div class="stat-label-fast">库存预警</div>
+                </div>
+                <div class="stat-fast">
+                    <div class="stat-icon-fast" style="color: #e74c3c;">❌</div>
+                    <div class="stat-number-fast">4</div>
+                    <div class="stat-label-fast">缺货商品</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 按钮测试 -->
+        <div class="perf-section">
+            <h3>🔘 优化按钮组件</h3>
+            <button class="btn-fast btn-primary-fast">
+                <span class="loading-fast" id="primaryLoading" style="display: none;"></span>
+                主要操作
+            </button>
+            <button class="btn-fast btn-success-fast" style="margin-left: 10px;">
+                成功操作
+            </button>
+            <button class="btn-fast btn-danger-fast" style="margin-left: 10px;">
+                删除操作
+            </button>
+        </div>
+        
+        <!-- 表格测试 -->
+        <div class="perf-section">
+            <h3>📋 精简表格</h3>
+            <div class="fast-card">
+                <div class="fast-card-header">
+                    物料列表
+                </div>
+                <div class="fast-card-body">
+                    <table class="table-fast">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>物料名称</th>
+                                <th>分类</th>
+                                <th>库存</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>笔记本电脑 ThinkPad X1</td>
+                                <td>电子元件</td>
+                                <td>45</td>
+                                <td><span class="badge-fast badge-success-fast">正常</span></td>
+                                <td>
+                                    <button class="btn-fast btn-primary-fast" style="padding: 4px 8px; font-size: 12px;">
+                                        编辑
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>无线鼠标 罗技MX Master 3</td>
+                                <td>办公用品</td>
+                                <td>8</td>
+                                <td><span class="badge-fast badge-warning-fast">预警</span></td>
+                                <td>
+                                    <button class="btn-fast btn-primary-fast" style="padding: 4px 8px; font-size: 12px;">
+                                        编辑
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 搜索面板 -->
+        <div class="perf-section">
+            <h3>🔍 精简搜索</h3>
+            <div class="search-fast">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
+                    <div class="form-group-fast">
+                        <label>物料名称</label>
+                        <input type="text" class="form-control-fast" placeholder="请输入物料名称">
+                    </div>
+                    <div class="form-group-fast">
+                        <label>分类</label>
+                        <select class="form-control-fast">
+                            <option>全部分类</option>
+                            <option>电子元件</option>
+                            <option>办公用品</option>
+                        </select>
+                    </div>
+                    <div class="form-group-fast">
+                        <label>状态</label>
+                        <select class="form-control-fast">
+                            <option>全部状态</option>
+                            <option>正常</option>
+                            <option>预警</option>
+                        </select>
+                    </div>
+                    <button class="btn-fast btn-primary-fast">
+                        搜索
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 性能测试函数
+        function testPerformance() {
+            const startTime = performance.now();
+            const results = document.getElementById('perfResults');
+            const loading = document.getElementById('primaryLoading');
+            
+            // 显示加载状态
+            loading.style.display = 'inline-block';
+            results.style.display = 'block';
+            results.innerHTML = '正在测试性能...';
+            
+            // 模拟一些操作
+            setTimeout(() => {
+                const endTime = performance.now();
+                const loadTime = endTime - startTime;
+                
+                // 测试CSS动画性能
+                const animationsStart = performance.now();
+                document.querySelectorAll('.stat-fast').forEach((el, index) => {
+                    setTimeout(() => {
+                        el.style.animation = 'fadeIn 0.3s ease forwards';
+                    }, index * 50);
+                });
+                const animationsEnd = performance.now();
+                
+                loading.style.display = 'none';
+                
+                results.innerHTML = `
+性能测试结果：
+┌─────────────────────────────────────┐
+│ 页面加载时间: ${loadTime.toFixed(2)}ms           │
+│ CSS动画性能: ${(animationsEnd - animationsStart).toFixed(2)}ms    │
+│ DOM元素数量: ${document.querySelectorAll('*').length}               │
+│ CSS文件大小: 约${(document.styleSheets.length * 2.5).toFixed(1)}KB     │
+└─────────────────────────────────────┘
+
+优化建议:
+• 使用精简CSS减少文件大小
+• 合理使用CSS动画
+• 避免过多嵌套选择器
+• 使用transform替代改变布局的属性
+                `;
+                
+            }, 1000);
+        }
+        
+        // 页面加载完成后的优化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成，优化版本已启用');
+            
+            // 预加载关键资源
+            const links = document.createElement('link');
+            links.rel = 'prefetch';
+            links.href = '/static/css/performance.css';
+            document.head.appendChild(links);
+        });
+    </script>
+</body>
+</html>

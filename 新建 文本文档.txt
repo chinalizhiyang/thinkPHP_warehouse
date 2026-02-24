@@ -1,1 +1,1 @@
- php -S localhost:8080 -t c:\wamp64\www c:\wamp64\www\public\router.php
+ php -S localhost:8080 -t c:\wwwroot\ThinkPHP_warehouse c:\wwwroot\ThinkPHP_warehouse\public\router.php

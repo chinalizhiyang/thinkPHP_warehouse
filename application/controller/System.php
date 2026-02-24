@@ -9,7 +9,7 @@ class System
     public function index()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -223,7 +223,7 @@ class System
     public function system()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -331,7 +331,7 @@ class System
     public function backup()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -493,7 +493,7 @@ class System
     public function cleanOperation()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -518,7 +518,7 @@ class System
     public function cleanSystem()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -543,7 +543,7 @@ class System
     public function download($filename)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -564,7 +564,7 @@ class System
     public function restore($filename)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -579,11 +579,11 @@ class System
         if ($result) {
             // 记录操作日志
             $log_data = [
-                'user_id' => $_SESSION['user']['id'] ?? 0,
-                'username' => $_SESSION['user']['username'] ?? 'unknown',
+                'user_id' => $_COOKIE['user']['id'] ?? 0,
+                'username' => $_COOKIE['user']['username'] ?? 'unknown',
                 'action' => '数据库恢复',
                 'target' => '系统',
-                'content' => "用户 {$_SESSION['user']['username']} 恢复了数据库备份: $filename",
+                'content' => "用户 {$_COOKIE['user']['username']} 恢复了数据库备份: $filename",
                 'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
             ];
             RecordModel::addOperation($log_data);
@@ -598,7 +598,7 @@ class System
     public function delete($filename)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         

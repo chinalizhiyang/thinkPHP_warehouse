@@ -1,46 +1,46 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>添加出库单 - 仓储管理系统</title>
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <title>娣诲姞鍑哄簱鍗?- 浠撳偍绠＄悊绯荤粺</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-5">
-        <h1>添加出库单</h1>
+        <h1>娣诲姞鍑哄簱鍗?/h1>
         <form action="/outbound/add" method="post">
             <div class="mb-3">
-                <label for="customer" class="form-label">客户</label>
+                <label for="customer" class="form-label">瀹㈡埛</label>
                 <input type="text" class="form-control" id="customer" name="customer" required>
             </div>
             
-            <h3 class="mt-4 mb-3">出库明细</h3>
+            <h3 class="mt-4 mb-3">鍑哄簱鏄庣粏</h3>
             <div id="outbound-details">
                 <div class="row mb-3 outbound-detail-item">
                     <div class="col-md-3">
-                        <label for="material_id_0" class="form-label">物料</label>
+                        <label for="material_id_0" class="form-label">鐗╂枡</label>
                         <select class="form-control material-select" id="material_id_0" name="material_id[]" required>
-                            <option value="">请选择物料</option>
+                            <option value="">璇烽€夋嫨鐗╂枡</option>
                             {foreach $materials as $material}
-                            <option value="{$material.id}" data-name="{$material.name}" data-code="{$material.code}" data-unit="{$material.unit}" data-price="{$material.price}" data-stock="{$material.stock}">{$material.name} ({$material.code}) - 库存: {$material.stock}</option>
+                            <option value="{$material.id}" data-name="{$material.name}" data-code="{$material.code}" data-unit="{$material.unit}" data-price="{$material.price}" data-stock="{$material.stock}">{$material.name} ({$material.code}) - 搴撳瓨: {$material.stock}</option>
                             {/foreach}
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label for="quantity_0" class="form-label">数量</label>
+                        <label for="quantity_0" class="form-label">鏁伴噺</label>
                         <input type="number" class="form-control quantity-input" id="quantity_0" name="quantity[]" min="1" required>
                     </div>
                     <div class="col-md-2">
-                        <label for="price_0" class="form-label">单价</label>
+                        <label for="price_0" class="form-label">鍗曚环</label>
                         <input type="number" class="form-control price-input" id="price_0" name="price[]" step="0.01" min="0" required>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">金额</label>
+                        <label class="form-label">閲戦</label>
                         <input type="number" class="form-control amount-input" step="0.01" min="0" readonly>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">操作</label>
+                        <label class="form-label">鎿嶄綔</label>
                         <div>
                             <button type="button" class="btn btn-sm btn-primary add-detail-btn">+</button>
                             <button type="button" class="btn btn-sm btn-danger remove-detail-btn">-</button>
@@ -50,17 +50,17 @@
             </div>
             
             <div class="mt-4 mb-3">
-                <label for="total_amount" class="form-label">总金额</label>
+                <label for="total_amount" class="form-label">鎬婚噾棰?/label>
                 <input type="number" class="form-control" id="total_amount" name="total_amount" step="0.01" min="0" readonly required>
             </div>
             
-            <button type="submit" class="btn btn-primary">保存</button>
-            <a href="/outbound" class="btn btn-secondary">取消</a>
+            <button type="submit" class="btn btn-primary">淇濆瓨</button>
+            <a href="/outbound" class="btn btn-secondary">鍙栨秷</a>
         </form>
     </div>
-    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 计算金额
+        // 璁＄畻閲戦
         function calculateAmount(index) {
             const quantity = parseFloat($(`.quantity-input:eq(${index})`).val()) || 0;
             const price = parseFloat($(`.price-input:eq(${index})`).val()) || 0;
@@ -69,8 +69,7 @@
             calculateTotal();
         }
         
-        // 计算总金额
-        function calculateTotal() {
+        // 璁＄畻鎬婚噾棰?        function calculateTotal() {
             let total = 0;
             $('.amount-input').each(function() {
                 total += parseFloat($(this).val()) || 0;
@@ -78,8 +77,7 @@
             $('#total_amount').val(total.toFixed(2));
         }
         
-        // 检查库存
-        function checkStock(index) {
+        // 妫€鏌ュ簱瀛?        function checkStock(index) {
             const select = $(`.material-select:eq(${index})`);
             const stock = parseFloat(select.find('option:selected').data('stock')) || 0;
             const quantityInput = $(`.quantity-input:eq(${index})`);
@@ -87,41 +85,40 @@
             quantityInput.on('input', function() {
                 const quantity = parseFloat($(this).val()) || 0;
                 if (quantity > stock) {
-                    alert('库存不足');
+                    alert('搴撳瓨涓嶈冻');
                     $(this).val(stock);
                     calculateAmount(index);
                 }
             });
         }
         
-        // 添加出库明细行
-        function addDetailRow() {
+        // 娣诲姞鍑哄簱鏄庣粏琛?        function addDetailRow() {
             const index = $('.outbound-detail-item').length;
             const html = `
                 <div class="row mb-3 outbound-detail-item">
                     <div class="col-md-3">
-                        <label for="material_id_${index}" class="form-label">物料</label>
+                        <label for="material_id_${index}" class="form-label">鐗╂枡</label>
                         <select class="form-control material-select" id="material_id_${index}" name="material_id[]" required>
-                            <option value="">请选择物料</option>
+                            <option value="">璇烽€夋嫨鐗╂枡</option>
                             {foreach $materials as $material}
-                            <option value="{$material.id}" data-name="{$material.name}" data-code="{$material.code}" data-unit="{$material.unit}" data-price="{$material.price}" data-stock="{$material.stock}">{$material.name} ({$material.code}) - 库存: {$material.stock}</option>
+                            <option value="{$material.id}" data-name="{$material.name}" data-code="{$material.code}" data-unit="{$material.unit}" data-price="{$material.price}" data-stock="{$material.stock}">{$material.name} ({$material.code}) - 搴撳瓨: {$material.stock}</option>
                             {/foreach}
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label for="quantity_${index}" class="form-label">数量</label>
+                        <label for="quantity_${index}" class="form-label">鏁伴噺</label>
                         <input type="number" class="form-control quantity-input" id="quantity_${index}" name="quantity[]" min="1" required>
                     </div>
                     <div class="col-md-2">
-                        <label for="price_${index}" class="form-label">单价</label>
+                        <label for="price_${index}" class="form-label">鍗曚环</label>
                         <input type="number" class="form-control price-input" id="price_${index}" name="price[]" step="0.01" min="0" required>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">金额</label>
+                        <label class="form-label">閲戦</label>
                         <input type="number" class="form-control amount-input" step="0.01" min="0" readonly>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">操作</label>
+                        <label class="form-label">鎿嶄綔</label>
                         <div>
                             <button type="button" class="btn btn-sm btn-primary add-detail-btn">+</button>
                             <button type="button" class="btn btn-sm btn-danger remove-detail-btn">-</button>
@@ -131,13 +128,12 @@
             `;
             $('#outbound-details').append(html);
             
-            // 绑定事件
+            // 缁戝畾浜嬩欢
             bindDetailEvents();
         }
         
-        // 绑定明细行事件
-        function bindDetailEvents() {
-            // 物料选择事件
+        // 缁戝畾鏄庣粏琛屼簨浠?        function bindDetailEvents() {
+            // 鐗╂枡閫夋嫨浜嬩欢
             $('.material-select').off('change').on('change', function() {
                 const index = $(this).closest('.outbound-detail-item').index();
                 const price = $(this).find('option:selected').data('price');
@@ -146,24 +142,24 @@
                 checkStock(index);
             });
             
-            // 数量输入事件
+            // 鏁伴噺杈撳叆浜嬩欢
             $('.quantity-input').off('input').on('input', function() {
                 const index = $(this).closest('.outbound-detail-item').index();
                 calculateAmount(index);
             });
             
-            // 单价输入事件
+            // 鍗曚环杈撳叆浜嬩欢
             $('.price-input').off('input').on('input', function() {
                 const index = $(this).closest('.outbound-detail-item').index();
                 calculateAmount(index);
             });
             
-            // 添加明细按钮事件
+            // 娣诲姞鏄庣粏鎸夐挳浜嬩欢
             $('.add-detail-btn').off('click').on('click', function() {
                 addDetailRow();
             });
             
-            // 删除明细按钮事件
+            // 鍒犻櫎鏄庣粏鎸夐挳浜嬩欢
             $('.remove-detail-btn').off('click').on('click', function() {
                 const item = $(this).closest('.outbound-detail-item');
                 if ($('.outbound-detail-item').length > 1) {
@@ -173,10 +169,11 @@
             });
         }
         
-        // 初始化
-        $(document).ready(function() {
+        // 鍒濆鍖?        $(document).ready(function() {
             bindDetailEvents();
         });
     </script>
 </body>
 </html>
+
+

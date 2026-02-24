@@ -1,0 +1,242 @@
+/* 性能优化版CSS - 精简版本 */
+:root {
+    --primary: #2c3e50;
+    --secondary: #34495e;
+    --accent: #3498db;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --light: #ecf0f1;
+    --dark: #2c3e50;
+}
+
+/* 基础重置 - 最小化 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 快速加载的卡片样式 */
+.fast-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.fast-card-header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 16px 20px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.fast-card-body {
+    padding: 20px;
+}
+
+/* 优化的按钮 */
+.btn-fast {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary-fast {
+    background: var(--accent);
+    color: white;
+}
+
+.btn-primary-fast:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+.btn-success-fast {
+    background: var(--success);
+    color: white;
+}
+
+.btn-success-fast:hover {
+    background: #219653;
+}
+
+.btn-danger-fast {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-danger-fast:hover {
+    background: #c0392b;
+}
+
+/* 精简表格 */
+.table-fast {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.table-fast th {
+    background: var(--light);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--dark);
+    border-bottom: 2px solid #ddd;
+}
+
+.table-fast td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.table-fast tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* 状态标签 - 简化版 */
+.badge-fast {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-success-fast {
+    background: rgba(39, 174, 96, 0.1);
+    color: var(--success);
+}
+
+.badge-warning-fast {
+    background: rgba(243, 156, 18, 0.1);
+    color: var(--warning);
+}
+
+.badge-danger-fast {
+    background: rgba(231, 76, 60, 0.1);
+    color: var(--danger);
+}
+
+/* 搜索面板 - 简化 */
+.search-fast {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.form-group-fast {
+    margin-bottom: 15px;
+}
+
+.form-group-fast label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--dark);
+}
+
+.form-control-fast {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e1e8ed;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.form-control-fast:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* 统计卡片 - 简化版 */
+.stats-fast {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.stat-fast {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.stat-icon-fast {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.stat-number-fast {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--primary);
+}
+
+.stat-label-fast {
+    color: #7f8c8d;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+/* 响应式 - 简化 */
+@media (max-width: 768px) {
+    .stats-fast {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .fast-card-body {
+        padding: 15px;
+    }
+    
+    .table-fast {
+        font-size: 13px;
+    }
+}
+
+/* 关键帧动画 - 最小化 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-fast {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+/* 加载状态 */
+.loading-fast {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

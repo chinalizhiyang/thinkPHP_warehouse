@@ -6,7 +6,7 @@ class Index
     public function index()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -72,7 +72,7 @@ class Index
         <!-- 页面头部信息 -->
         <div class="card mb-4">
             <div class="card-header">
-                <h2>欢迎回来，<?php echo $_SESSION['user']['username']; ?></h2>
+                <h2>欢迎回来，<?php echo json_decode($_COOKIE['user'], true)['username']; ?></h2>
             </div>
             <div class="card-body">
                 <p>今天是 <span id="current-time" style="font-size: 2em;"><?php echo date('Y年m月d日 H:i:s'); ?></span>，祝您工作愉快！</p>

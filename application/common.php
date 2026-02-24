@@ -57,7 +57,14 @@ function redirect($url, $message = '', $wait = 3)
         $full_url = $url;
     }
     
-    if (empty($message)) {
+    // 对于登录成功等需要保持会话的跳转，使用HTTP重定向
+    if (strpos($message, '成功') !== false || strpos($message, '登录') !== false) {
+        if (!empty($message)) {
+            $_SESSION['redirect_message'] = $message;
+        }
+        header('Location: ' . $full_url);
+        exit;
+    } elseif (empty($message)) {
         header('Location: ' . $full_url);
         exit;
     } else {
@@ -73,15 +80,12 @@ function redirect($url, $message = '', $wait = 3)
  */
 function check_permission($permission)
 {
-    if (!isset($_SESSION['user'])) {
+    if (!isset($_COOKIE['user'])) {
         return false;
     }
     
-    if (!isset($_SESSION['user'])) {
-        return false;
-    }
-    
-    $user_role = $_SESSION['user']['role'];
+    $user = json_decode($_COOKIE['user'], true);
+    $user_role = $user['role'];
     
     // 引入角色模型
     require_once __DIR__ . '/model/Role.php';
@@ -100,11 +104,12 @@ function check_permission($permission)
  */
 function get_nav_menu()
 {
-    if (!isset($_SESSION['user'])) {
+    if (!isset($_COOKIE['user'])) {
         return [];
     }
     
-    $user_role = $_SESSION['user']['role'];
+    $user = json_decode($_COOKIE['user'], true);
+    $user_role = $user['role'];
     
     // 定义所有菜单（带下拉菜单结构）
     $all_menu = [

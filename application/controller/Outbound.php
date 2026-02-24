@@ -10,7 +10,7 @@ class Outbound
     public function index()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -181,7 +181,7 @@ class Outbound
     public function add()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -407,7 +407,7 @@ class Outbound
     public function edit($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -549,7 +549,7 @@ class Outbound
     public function delete($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         

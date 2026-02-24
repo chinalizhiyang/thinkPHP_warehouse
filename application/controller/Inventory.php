@@ -10,7 +10,7 @@ class Inventory
     public function index()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -157,7 +157,7 @@ class Inventory
     public function check()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -292,7 +292,7 @@ class Inventory
     public function report()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -481,7 +481,7 @@ class Inventory
     public function exportCsv()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         

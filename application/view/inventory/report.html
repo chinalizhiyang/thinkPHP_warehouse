@@ -1,67 +1,67 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>库存报表 - 仓储管理系统</title>
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <title>搴撳瓨鎶ヨ〃 - 浠撳偍绠＄悊绯荤粺</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-5">
-        <h1>库存报表</h1>
+        <h1>搴撳瓨鎶ヨ〃</h1>
         <form action="/inventory/report" method="get" class="mb-4">
             <div class="row">
                 <div class="col-md-4">
-                    <label for="start_date" class="form-label">开始日期</label>
+                    <label for="start_date" class="form-label">寮€濮嬫棩鏈?/label>
                     <input type="date" class="form-control" id="start_date" name="start_date" value="{$report.start_date}" required>
                 </div>
                 <div class="col-md-4">
-                    <label for="end_date" class="form-label">结束日期</label>
+                    <label for="end_date" class="form-label">缁撴潫鏃ユ湡</label>
                     <input type="date" class="form-control" id="end_date" name="end_date" value="{$report.end_date}" required>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">操作</label>
-                    <button type="submit" class="btn btn-primary w-100">生成报表</button>
+                    <label class="form-label">鎿嶄綔</label>
+                    <button type="submit" class="btn btn-primary w-100">鐢熸垚鎶ヨ〃</button>
                 </div>
             </div>
         </form>
         
-        <!-- 报表汇总信息 -->
+        <!-- 鎶ヨ〃姹囨€讳俊鎭?-->
         <div class="card mb-4">
             <div class="card-header">
-                <h3>汇总信息</h3>
+                <h3>姹囨€讳俊鎭?/h3>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-3">
-                        <p><strong>开始日期:</strong> {$report.start_date}</p>
+                        <p><strong>寮€濮嬫棩鏈?</strong> {$report.start_date}</p>
                     </div>
                     <div class="col-md-3">
-                        <p><strong>结束日期:</strong> {$report.end_date}</p>
+                        <p><strong>缁撴潫鏃ユ湡:</strong> {$report.end_date}</p>
                     </div>
                     <div class="col-md-2">
-                        <p><strong>物料种类:</strong> {$report.total_materials}</p>
+                        <p><strong>鐗╂枡绉嶇被:</strong> {$report.total_materials}</p>
                     </div>
                     <div class="col-md-2">
-                        <p><strong>总库存:</strong> {$report.total_stock}</p>
+                        <p><strong>鎬诲簱瀛?</strong> {$report.total_stock}</p>
                     </div>
                     <div class="col-md-2">
-                        <p><strong>总金额:</strong> {$report.total_amount}</p>
+                        <p><strong>鎬婚噾棰?</strong> {$report.total_amount}</p>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- 报表详细数据 -->
+        <!-- 鎶ヨ〃璇︾粏鏁版嵁 -->
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>物料名称</th>
-                    <th>物料编码</th>
-                    <th>单位</th>
-                    <th>库存</th>
-                    <th>单价</th>
-                    <th>金额</th>
+                    <th>鐗╂枡鍚嶇О</th>
+                    <th>鐗╂枡缂栫爜</th>
+                    <th>鍗曚綅</th>
+                    <th>搴撳瓨</th>
+                    <th>鍗曚环</th>
+                    <th>閲戦</th>
                 </tr>
             </thead>
             <tbody>
@@ -79,10 +79,12 @@
         </table>
         
         <div class="mt-4">
-            <a href="/inventory" class="btn btn-secondary">返回库存管理</a>
-            <button type="button" class="btn btn-primary" onclick="window.print()">打印报表</button>
+            <a href="/inventory" class="btn btn-secondary">杩斿洖搴撳瓨绠＄悊</a>
+            <button type="button" class="btn btn-primary" onclick="window.print()">鎵撳嵃鎶ヨ〃</button>
         </div>
     </div>
-    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+

@@ -1,30 +1,30 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>编辑出库单 - 仓储管理系统</title>
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <title>缂栬緫鍑哄簱鍗?- 浠撳偍绠＄悊绯荤粺</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-5">
-        <h1>编辑出库单</h1>
+        <h1>缂栬緫鍑哄簱鍗?/h1>
         <form action="/outbound/edit/{$outbound.id}" method="post">
             <div class="mb-3">
-                <label for="customer" class="form-label">客户</label>
+                <label for="customer" class="form-label">瀹㈡埛</label>
                 <input type="text" class="form-control" id="customer" name="customer" value="{$outbound.customer}" required>
             </div>
             
-            <h3 class="mt-4 mb-3">出库明细</h3>
+            <h3 class="mt-4 mb-3">鍑哄簱鏄庣粏</h3>
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>物料名称</th>
-                        <th>物料编码</th>
-                        <th>单位</th>
-                        <th>数量</th>
-                        <th>单价</th>
-                        <th>金额</th>
+                        <th>鐗╂枡鍚嶇О</th>
+                        <th>鐗╂枡缂栫爜</th>
+                        <th>鍗曚綅</th>
+                        <th>鏁伴噺</th>
+                        <th>鍗曚环</th>
+                        <th>閲戦</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,14 +42,16 @@
             </table>
             
             <div class="mt-4 mb-3">
-                <label for="total_amount" class="form-label">总金额</label>
+                <label for="total_amount" class="form-label">鎬婚噾棰?/label>
                 <input type="number" class="form-control" id="total_amount" name="total_amount" step="0.01" min="0" value="{$outbound.total_amount}" readonly required>
             </div>
             
-            <button type="submit" class="btn btn-primary">保存</button>
-            <a href="/outbound" class="btn btn-secondary">取消</a>
+            <button type="submit" class="btn btn-primary">淇濆瓨</button>
+            <a href="/outbound" class="btn btn-secondary">鍙栨秷</a>
         </form>
     </div>
-    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+

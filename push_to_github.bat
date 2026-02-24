@@ -1,64 +1,63 @@
 @echo off
-chcp 65001 >nul
 echo.
 echo =============================================
-echo    仓储管理系统 - 推送至GitHub
+echo    Warehouse System - Push to GitHub
 echo =============================================
 echo.
 
-echo 步骤1: 检查Git是否已安装...
+echo Step 1: Checking if Git is installed...
 git --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo Git未安装，请先下载并安装Git:
+    echo Git is not installed. Please download and install Git:
     echo https://git-scm.com/download/win
     echo.
-    echo 安装完成后，请重新运行此脚本。
+    echo After installation, please run this script again.
     echo.
     pause
     exit /b 1
 )
 
-echo ✓ Git已安装
+echo [OK] Git is installed
 
 echo.
-echo 步骤2: 初始化Git仓库...
+echo Step 2: Initializing Git repository...
 git init
 if %errorlevel% neq 0 (
-    echo 初始化Git仓库失败
+    echo Failed to initialize Git repository
     pause
     exit /b 1
 )
 
 echo.
-echo 步骤3: 添加所有文件到暂存区...
+echo Step 3: Adding all files to staging area...
 git add .
 
 echo.
-echo 步骤4: 创建初始提交...
-git config user.name "Your Name"
-git config user.email "your.email@example.com"
-git commit -m "Initial commit: PHP仓储管理系统(ThinkPHP版)"
+echo Step 4: Creating initial commit...
+git config user.name "Chinalizhiyang"
+git config user.email "chinalizhiyang@163.com"
+git commit -m "Initial commit: PHP Warehouse Management System (ThinkPHP)"
 
 echo.
-echo 步骤5: 添加远程仓库并推送...
+echo Step 5: Adding remote repository and pushing...
 set REPO_URL=git@github.com:chinalizhiyang/thinkPHP_warehouse.git
 
-echo 正在使用仓库地址: %REPO_URL%
+echo Using repository URL: %REPO_URL%
 git remote add origin %REPO_URL%
 git branch -M main
 git push -u origin main
 
 if %errorlevel% equ 0 (
     echo.
-    echo ✓ 项目已成功推送到GitHub!
+    echo [OK] Project successfully pushed to GitHub!
     echo.
 ) else (
     echo.
-    echo ✗ 推送失败，请检查仓库URL和网络连接
+    echo [ERROR] Push failed. Please check repository URL and network connection.
     echo.
 )
 
 echo =============================================
-echo GitHub推送完成！
+echo GitHub push completed!
 echo =============================================
 pause

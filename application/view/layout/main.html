@@ -334,7 +334,7 @@
             <header class="content-header">
                 <h1><?php echo $title ?? '首页'; ?></h1>
                 <div class="user-info">
-                    <span>欢迎，<?php echo $_SESSION['user']['username']; ?></span>
+                    <span>欢迎，<?php echo json_decode($_COOKIE['user'], true)['username']; ?></span>
                     <a href="/logout"><i class="fa fa-power-off"></i> 退出</a>
                 </div>
             </header>

@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>分配权限 - 仓储管理系统</title>
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <title>鍒嗛厤鏉冮檺 - 浠撳偍绠＄悊绯荤粺</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .permission-module {
             background-color: #f8f9fa;
@@ -30,23 +30,23 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1>分配权限 - {$role.name}</h1>
+        <h1>鍒嗛厤鏉冮檺 - {$role.name}</h1>
         <form action="/role/assign/{$role.id}" method="post">
             <div class="mb-3">
-                <label class="form-label">权限列表</label>
+                <label class="form-label">鏉冮檺鍒楄〃</label>
                 
                 {foreach $permissions_by_module as $module => $module_permissions}
                 <div class="permission-module mb-4">
                     <h4 class="border-bottom pb-2 mb-3">
-                        {if $module == 'user'}用户管理
-                        {elseif $module == 'material'}物料管理
-                        {elseif $module == 'inbound'}入库管理
-                        {elseif $module == 'outbound'}出库管理
-                        {elseif $module == 'inventory'}库存管理
-                        {elseif $module == 'record'}记录管理
-                        {elseif $module == 'role'}角色管理
-                        {elseif $module == 'inbound_history'}入库历史
-                        {elseif $module == 'outbound_history'}出库历史
+                        {if $module == 'user'}鐢ㄦ埛绠＄悊
+                        {elseif $module == 'material'}鐗╂枡绠＄悊
+                        {elseif $module == 'inbound'}鍏ュ簱绠＄悊
+                        {elseif $module == 'outbound'}鍑哄簱绠＄悊
+                        {elseif $module == 'inventory'}搴撳瓨绠＄悊
+                        {elseif $module == 'record'}璁板綍绠＄悊
+                        {elseif $module == 'role'}瑙掕壊绠＄悊
+                        {elseif $module == 'inbound_history'}鍏ュ簱鍘嗗彶
+                        {elseif $module == 'outbound_history'}鍑哄簱鍘嗗彶
                         {else}{$module}
                         {/if}
                     </h4>
@@ -56,12 +56,12 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="permission_{$permission.id}" name="permission_id[]" value="{$permission.id}" {if in_array($permission.id, $role_permissions)}checked{/if}>
                                 <label class="form-check-label" for="permission_{$permission.id}">
-                                    {if $permission.name == 'material_import_csv'}物料导入CSV
-                                    {elseif $permission.name == 'inventory_export_csv'}库存导出CSV
-                                    {elseif $permission.name == 'inbound_history_import_csv'}入库历史导入CSV
-                                    {elseif $permission.name == 'inbound_history_export_csv'}入库历史导出CSV
-                                    {elseif $permission.name == 'outbound_history_import_csv'}出库历史导入CSV
-                                    {elseif $permission.name == 'outbound_history_export_csv'}出库历史导出CSV
+                                    {if $permission.name == 'material_import_csv'}鐗╂枡瀵煎叆CSV
+                                    {elseif $permission.name == 'inventory_export_csv'}搴撳瓨瀵煎嚭CSV
+                                    {elseif $permission.name == 'inbound_history_import_csv'}鍏ュ簱鍘嗗彶瀵煎叆CSV
+                                    {elseif $permission.name == 'inbound_history_export_csv'}鍏ュ簱鍘嗗彶瀵煎嚭CSV
+                                    {elseif $permission.name == 'outbound_history_import_csv'}鍑哄簱鍘嗗彶瀵煎叆CSV
+                                    {elseif $permission.name == 'outbound_history_export_csv'}鍑哄簱鍘嗗彶瀵煎嚭CSV
                                     {else}{$permission.description}
                                     {/if}
                                 </label>
@@ -72,10 +72,12 @@
                 </div>
                 {/foreach}
             </div>
-            <button type="submit" class="btn btn-primary">保存</button>
-            <a href="/role" class="btn btn-secondary">取消</a>
+            <button type="submit" class="btn btn-primary">淇濆瓨</button>
+            <a href="/role" class="btn btn-secondary">鍙栨秷</a>
         </form>
     </div>
-    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+
