@@ -1,0 +1,23 @@
+{
+    "name": "php/warehouse-system-thinkphp",
+    "description": "PHP仓储管理系统（ThinkPHP版）",
+    "type": "project",
+    "require": {
+        "php": ">=8.0.0",
+        "topthink/framework": "^6.0.0",
+        "topthink/think-orm": "^2.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": "application/"
+        },
+        "files": [
+            "application/common.php"
+        ]
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true
+    }
+}
