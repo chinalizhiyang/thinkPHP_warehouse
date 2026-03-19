@@ -16,44 +16,29 @@ class Record
             // 获取数据库连接
             $db_config = require __DIR__ . '/../config/database.php';
             $pdo = new \PDO(
-                "mysql:host={$db_config['hostname']};dbname={$db_config['database']};charset={$db_config['charset']}",
+                "mysql:host={$db_config['hostname']};port={$db_config['hostport']};dbname={$db_config['database']};charset={$db_config['charset']}",
                 $db_config['username'],
                 $db_config['password']
             );
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            
-            // 构建查询SQL
-            $sql = "SELECT id, user_id, operation_type as action, target_model as target, content, ip_address as ip, created_at FROM operation_records ORDER BY created_at DESC LIMIT 100";
+                
+            // 构建查询 SQL（关联用户表获取用户名）
+            $sql = "SELECT o.id, o.user_id, u.username, o.operation_type as action, o.target_model as target, o.content, o.ip_address as ip, o.created_at 
+                    FROM operation_records o 
+                    LEFT JOIN users u ON o.user_id = u.id 
+                    ORDER BY o.created_at DESC LIMIT 100";
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
-            
+                
             $records = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            
-            // 补充用户名信息（如果需要的话）
-            foreach ($records as &$record) {
-                // 这里可以根据user_id查询用户名
-                $record['username'] = '未知用户'; // 暂时用默认值
-            }
-            
+                
             return $records;
-            
+                
         } catch (\Exception $e) {
             error_log('Failed to get operation records: ' . $e->getMessage());
         }
-        
-        // 如果数据库查询失败，返回模拟数据
-        return [
-            [
-                'id' => 1,
-                'user_id' => 1,
-                'username' => 'admin',
-                'action' => '登录',
-                'target' => '系统',
-                'content' => '用户 admin 登录系统',
-                'ip' => '127.0.0.1',
-                'created_at' => date('Y-m-d H:i:s')
-            ]
-        ];
+            
+        return [];
     }
     
     // 获取系统日志列表
@@ -63,42 +48,33 @@ class Record
             // 获取数据库连接
             $db_config = require __DIR__ . '/../config/database.php';
             $pdo = new \PDO(
-                "mysql:host={$db_config['hostname']};dbname={$db_config['database']};charset={$db_config['charset']}",
+                "mysql:host={$db_config['hostname']};port={$db_config['hostport']};dbname={$db_config['database']};charset={$db_config['charset']}",
                 $db_config['username'],
                 $db_config['password']
             );
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            
-            // 构建查询SQL
+                
+            // 构建查询 SQL
             $sql = "SELECT id, level, message, data, created_at FROM system_logs ORDER BY created_at DESC LIMIT 100";
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
-            
+                
             $logs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            
-            // 解析JSON数据
+                
+            // 解析 JSON 数据
             foreach ($logs as &$log) {
                 if (!empty($log['data'])) {
                     $log['data'] = json_decode($log['data'], true) ?: $log['data'];
                 }
             }
-            
+                
             return $logs;
-            
+                
         } catch (\Exception $e) {
             error_log('Failed to get system logs: ' . $e->getMessage());
         }
-        
-        // 如果数据库查询失败，返回模拟数据
-        return [
-            [
-                'id' => 1,
-                'level' => 'info',
-                'message' => '系统启动',
-                'data' => '系统正常启动',
-                'created_at' => date('Y-m-d H:i:s')
-            ]
-        ];
+            
+        return [];
     }
     
     // 添加操作记录
@@ -108,7 +84,7 @@ class Record
             // 获取数据库连接
             $db_config = require __DIR__ . '/../config/database.php';
             $pdo = new \PDO(
-                "mysql:host={$db_config['hostname']};dbname={$db_config['database']};charset={$db_config['charset']}",
+                "mysql:host={$db_config['hostname']};port={$db_config['hostport']};dbname={$db_config['database']};charset={$db_config['charset']}",
                 $db_config['username'],
                 $db_config['password']
             );
@@ -164,7 +140,7 @@ class Record
             // 获取数据库连接
             $db_config = require __DIR__ . '/../config/database.php';
             $pdo = new \PDO(
-                "mysql:host={$db_config['hostname']};dbname={$db_config['database']};charset={$db_config['charset']}",
+                "mysql:host={$db_config['hostname']};port={$db_config['hostport']};dbname={$db_config['database']};charset={$db_config['charset']}",
                 $db_config['username'],
                 $db_config['password']
             );

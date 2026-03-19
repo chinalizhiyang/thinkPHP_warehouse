@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>添加物料 - 康泽环保仓储管理系统</title>
+    <title>添加物料 - 仓储管理系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .navbar {
@@ -20,13 +20,38 @@
         .dropdown-item {
             padding: 0.5rem 1rem;
         }
+        /* 添加表单样式优化 */
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        .form-title {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #3498db;
+        }
+        .btn-submit {
+            background: #3498db;
+            border: none;
+            padding: 10px 25px;
+            margin-right: 10px;
+        }
+        .btn-cancel {
+            background: #95a5a6;
+            border: none;
+            padding: 10px 25px;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
-                <span style="color: #007bff;">🏭</span> 康泽环保仓储管理系统
+                <span style="color: #007bff;">🏭</span> 仓储管理系统
             </a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
@@ -53,42 +78,89 @@
         </div>
     </nav>
     
-    <div class="container mt-5">
-        <h1>添加物料</h1>
-        <form action="/material/add" method="post">
-            <div class="mb-3">
-                <label for="name" class="form-label">物料名称</label>
-                <input type="text" class="form-control" id="name" name="name" required>
-            </div>
-            <div class="mb-3">
-                <label for="code" class="form-label">物料编码</label>
-                <input type="text" class="form-control" id="code" name="code" required>
-            </div>
-            <div class="mb-3">
-                <label for="category_id" class="form-label">分类</label>
-                <select class="form-control" id="category_id" name="category_id" required>
-                    <option value="">请选择分类</option>
-                    {foreach $categories as $category}
-                    <option value="{$category.id}">{$category.name}</option>
-                    {/foreach}
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="unit" class="form-label">单位</label>
-                <input type="text" class="form-control" id="unit" name="unit" required>
-            </div>
-            <div class="mb-3">
-                <label for="price" class="form-label">单价</label>
-                <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" required>
-            </div>
-            <div class="mb-3">
-                <label for="min_stock" class="form-label">最小库存</label>
-                <input type="number" class="form-control" id="min_stock" name="min_stock" min="0" required>
-            </div>
-            <button type="submit" class="btn btn-primary">保存</button>
-            <a href="/material" class="btn btn-secondary">取消</a>
-        </form>
+    <div class="container">
+        <div class="form-container">
+            <h1 class="form-title">添加物料</h1>
+            <form action="/material/add" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="name" class="form-label">物料名称 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="code" class="form-label">物料编码 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="code" name="code" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="category_id" class="form-label">分类 <span class="text-danger">*</span></label>
+                        <select class="form-control" id="category_id" name="category_id" required>
+                            <option value="">请选择分类</option>
+                            {foreach $categories as $category}
+                            <option value="{$category.id}">{$category.name}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="unit" class="form-label">单位 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="unit" name="unit" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="price" class="form-label">单价 <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="min_stock" class="form-label">最小库存 <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="min_stock" name="min_stock" min="0" required>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-submit">💾 保存</button>
+                    <a href="/material" class="btn btn-cancel">↩️ 取消</a>
+                </div>
+            </form>
+        </div>
     </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 表单验证增强
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input[required], select[required]');
+            
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.value.trim() === '') {
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    }
+                });
+            });
+            
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                inputs.forEach(input => {
+                    if (input.value.trim() === '') {
+                        input.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('请填写所有必填字段！');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

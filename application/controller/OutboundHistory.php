@@ -9,7 +9,7 @@ class OutboundHistory
     public function index()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -226,7 +226,7 @@ class OutboundHistory
     public function detail($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -325,7 +325,7 @@ class OutboundHistory
     public function search()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -413,7 +413,7 @@ class OutboundHistory
     public function edit($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -526,7 +526,7 @@ class OutboundHistory
     public function delete($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -548,7 +548,7 @@ class OutboundHistory
     public function importCsv()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -653,7 +653,7 @@ class OutboundHistory
             
             // 记录操作日志
             \app\model\Record::addOperation([
-                'user_id' => $_SESSION['user']['id'],
+                'user_id' => $_COOKIE['user']['id'],
                 'action' => 'import_outbound_history_csv',
                 'target' => 'outbound_history',
                 'content' => "导入出库历史CSV文件，成功: {$success_count}条，失败: {$error_count}条"
@@ -722,7 +722,7 @@ OUT20240101001,螺丝,M3螺栓,50,个,2024-01-01 15:30:00,生产部,张三,生�
     public function exportCsv()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         

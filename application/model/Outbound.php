@@ -17,30 +17,105 @@ class Outbound
         
         // 构建搜索条件
         $search_where = '';
-        $params = [];
+        $search_params = [];
         if (!empty($search)) {
             $search_where = " WHERE material_code LIKE ? OR material_name LIKE ? OR category LIKE ? OR spec LIKE ? OR receiver LIKE ? OR dept LIKE ?";
             $search_value = "%$search%";
-            $params = array_fill(0, 6, $search_value);
+            $search_params = array_fill(0, 6, $search_value);
+        }
+        
+        // 处理日期段查询条件
+        $date_where = '';
+        $date_params = [];
+        if (!empty($where['start_date']) && !empty($where['end_date'])) {
+            $date_where = " AND out_time >= ? AND out_time <= ?";
+            $date_params = [$where['start_date'], $where['end_date']];
+        } elseif (!empty($where['start_date'])) {
+            $date_where = " AND out_time >= ?";
+            $date_params = [$where['start_date']];
+        } elseif (!empty($where['end_date'])) {
+            $date_where = " AND out_time <= ?";
+            $date_params = [$where['end_date']];
+        }
+        
+        // 合并 WHERE 条件 - 确保正确处理 WHERE 和 AND
+        $full_where = '';
+        if (!empty($search_where)) {
+            // 如果有搜索条件，直接拼接日期条件
+            $full_where = $search_where . $date_where;
+        } elseif (!empty($date_where)) {
+            // 如果只有日期条件，将第一个 AND 改为 WHERE
+            $full_where = ' WHERE' . substr($date_where, 4);
         }
         
         // 使用数据库查询，获取所有出库明细，带分页
-        $sql = "SELECT id, material_code, category, material_name, spec, unit, quantity, price, out_time, receiver, dept, remark, created_at FROM outbound" . $search_where . " ORDER BY created_at DESC LIMIT ? OFFSET ?";
-        $params[] = $page_size;
-        $params[] = $offset;
-        $data = db_get_all($sql, $params);
+        $sql = "SELECT id, material_code, category, material_name, spec, unit, quantity, price, out_time, receiver, dept, remark, created_at FROM outbound" . $full_where . " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        $all_params = array_merge($search_params, $date_params, [$page_size, $offset]);
+        $data = db_get_all($sql, $all_params);
         
         // 获取总记录数
-        $total_sql = "SELECT COUNT(*) as total FROM outbound" . $search_where;
-        $total_params = $search ? array_fill(0, 6, "%$search%") : [];
-        $total = db_get_row($total_sql, $total_params)['total'];
+        $total_sql = "SELECT COUNT(*) as total FROM outbound" . $full_where;
+        $total_params = array_merge(!empty($search) ? array_fill(0, 6, "%$search%") : [], $date_params);
+        $total_result = db_get_row($total_sql, $total_params);
+        $total = $total_result ? $total_result['total'] : 0;
         
         return [
-            'data' => $data,
+            'data' => $data ?: [],
             'total' => $total,
             'page' => $page,
             'page_size' => $page_size,
             'search' => $search
+        ];
+    }
+    
+    // 获取所有出库单（不分页，用于导出）
+    public static function getAll($where = [], $search = '')
+    {
+        // 构建搜索条件
+        $search_where = '';
+        $search_params = [];
+        if (!empty($search)) {
+            $search_where = " WHERE material_code LIKE ? OR material_name LIKE ? OR category LIKE ? OR spec LIKE ? OR receiver LIKE ? OR dept LIKE ?";
+            $search_value = "%$search%";
+            $search_params = array_fill(0, 6, $search_value);
+        }
+        
+        // 处理日期段查询条件
+        $date_where = '';
+        $date_params = [];
+        if (!empty($where['start_date']) && !empty($where['end_date'])) {
+            $date_where = " AND out_time >= ? AND out_time <= ?";
+            $date_params = [$where['start_date'], $where['end_date']];
+        } elseif (!empty($where['start_date'])) {
+            $date_where = " AND out_time >= ?";
+            $date_params = [$where['start_date']];
+        } elseif (!empty($where['end_date'])) {
+            $date_where = " AND out_time <= ?";
+            $date_params = [$where['end_date']];
+        }
+        
+        // 合并 WHERE 条件 - 确保正确处理 WHERE 和 AND
+        $full_where = '';
+        if (!empty($search_where)) {
+            // 如果有搜索条件，直接拼接日期条件
+            $full_where = $search_where . $date_where;
+        } elseif (!empty($date_where)) {
+            // 如果只有日期条件，将第一个 AND 改为 WHERE
+            $full_where = ' WHERE' . substr($date_where, 4);
+        }
+        
+        // 使用数据库查询，获取所有出库明细
+        $sql = "SELECT id, material_code, category, material_name, spec, unit, quantity, price, out_time, receiver, dept, remark, created_at FROM outbound" . $full_where . " ORDER BY created_at DESC";
+        $all_params = array_merge($search_params, $date_params);
+        $data = db_get_all($sql, $all_params);
+        
+        // 为每条记录添加总价字段
+        foreach ($data as &$item) {
+            $item['total_price'] = number_format($item['quantity'] * $item['price'], 2);
+        }
+        
+        return [
+            'data' => $data ?: [],
         ];
     }
     

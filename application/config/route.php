@@ -36,12 +36,14 @@ return [
         'inbound/add' => 'inbound/add',
         'inbound/edit/:id' => 'inbound/edit',
         'inbound/delete/:id' => 'inbound/delete',
+        'inbound/export-csv' => 'inbound/exportCsv',
         
         // 出库相关
         'outbound' => 'outbound/index',
         'outbound/add' => 'outbound/add',
         'outbound/edit/:id' => 'outbound/edit',
         'outbound/delete/:id' => 'outbound/delete',
+        'outbound/export-csv' => 'outbound/exportCsv',
         
         // 库存相关
         'inventory' => 'inventory/index',
@@ -52,12 +54,18 @@ return [
         // 系统管理相关
         'record' => 'system/index',
         'record/system' => 'system/system',
-        'record/backup' => 'system/backup',
+        
+        // 记录备份相关
+        'record/backup' => 'record/backup',
+        'record/executeBackup' => 'record/executeBackup',
+        'record/restore' => 'record/restore',
+        'record/executeRestore' => 'record/executeRestore',
+        'record/deleteBackup' => 'record/deleteBackup',
+        'record/download' => 'record/download',
+        
+        // 系统日志相关（保留原有功能）
         'record/clean-operation' => 'system/cleanOperation',
         'record/clean-system' => 'system/cleanSystem',
-        'record/download/:filename' => 'system/download',
-        'record/delete/:filename' => 'system/delete',
-        'record/restore/:filename' => 'system/restore',
         
         // 入库历史相关
         'inbound-history' => 'inbound_history/index',

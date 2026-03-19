@@ -10,7 +10,7 @@ class Inventory
     public function index()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -157,7 +157,7 @@ class Inventory
     public function check()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -291,8 +291,12 @@ class Inventory
     // 库存报表
     public function report()
     {
+        // 设置更长的执行时间和内存限制
+        set_time_limit(300); // 5 分钟
+        ini_set('memory_limit', '512M');
+        
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -481,7 +485,7 @@ class Inventory
     public function exportCsv()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         

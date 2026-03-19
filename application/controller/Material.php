@@ -9,7 +9,7 @@ class Material
     public function index()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -31,7 +31,18 @@ class Material
         $total = $result['total'];
         $total_pages = ceil($total / $page_size);
         
-        // 渲染物料列表内容
+        // 使用布局模板显示页面
+        return view('layout/main', [
+            'title' => '物料管理',
+            'content' => $this->renderMaterialContent($materials, $page, $page_size, $total, $total_pages),
+            'menu' => $menu,
+            'current_controller' => 'Material'
+        ]);
+    }
+    
+    // 渲染物料内容
+    private function renderMaterialContent($materials, $page, $page_size, $total, $total_pages)
+    {
         ob_start();
         ?>
         <div class="card">
@@ -172,22 +183,14 @@ class Material
         </div>
         <?php endif; ?>
         <?php
-        $content = ob_get_clean();
-        
-        // 使用布局模板显示页面
-        return view('layout/main', [
-            'title' => '物料管理',
-            'content' => $content,
-            'menu' => $menu,
-            'current_controller' => 'Material'
-        ]);
+        return ob_get_clean();
     }
     
     // 搜索物料
     public function search()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -390,7 +393,7 @@ class Material
     public function add()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -420,6 +423,17 @@ class Material
             $material = MaterialModel::create($data);
             
             if ($material) {
+                // 记录操作日志
+                $user_data = json_decode($_COOKIE['user'], true);
+                \app\model\Record::addOperation([
+                    'user_id' => $user_data['id'],
+                    'username' => $user_data['username'],
+                    'action' => 'create',
+                    'target' => 'material',
+                    'content' => "添加了物料 {$data['code']} ({$data['name']})",
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+                ]);
+                
                 redirect('material', '添加成功');
             } else {
                 redirect('material/add', '添加失败');
@@ -442,7 +456,7 @@ class Material
     public function edit($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -475,6 +489,17 @@ class Material
             $result = MaterialModel::update($id, $data);
             
             if ($result) {
+                // 记录操作日志
+                $user_data = json_decode($_COOKIE['user'], true);
+                \app\model\Record::addOperation([
+                    'user_id' => $user_data['id'],
+                    'username' => $user_data['username'],
+                    'action' => 'update',
+                    'target' => 'material',
+                    'content' => "修改了物料 {$data['code']} ({$data['name']})",
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+                ]);
+                
                 redirect('/material');
             } else {
                 redirect('/material/edit/' . $id);
@@ -497,7 +522,7 @@ class Material
     public function delete($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -510,6 +535,17 @@ class Material
         $result = MaterialModel::delete($id);
         
         if ($result) {
+            // 记录操作日志
+            $user_data = json_decode($_COOKIE['user'], true);
+            \app\model\Record::addOperation([
+                'user_id' => $user_data['id'],
+                'username' => $user_data['username'],
+                'action' => 'delete',
+                'target' => 'material',
+                'content' => "删除了物料 (ID: {$id})",
+                'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+            ]);
+            
             redirect('/material', '删除成功');
         } else {
             redirect('/material', '删除失败');
@@ -520,7 +556,7 @@ class Material
     public function getByCode($code)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             $response = [
                 'success' => false,
                 'message' => '请先登录'
@@ -564,7 +600,7 @@ class Material
     public function importCsv()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -654,8 +690,9 @@ class Material
             fclose($handle);
             
             // 记录操作日志
+            $user_data = json_decode($_COOKIE['user'], true);
             \app\model\Record::addOperation([
-                'user_id' => $_SESSION['user']['id'],
+                'user_id' => $user_data['id'],
                 'action' => 'import_material_csv',
                 'target' => 'material',
                 'content' => "导入物料CSV文件，成功: {$success_count}条，失败: {$error_count}条"

@@ -16,18 +16,33 @@ class User
             $user = UserModel::getByUsername($username);
             
             if ($user && UserModel::verifyPassword($user, $password)) {
-                // 保存用户信息到session
+                // 保存用户信息到 cookie
                 $user['login_time'] = date('Y-m-d H:i:s');
-                $_SESSION['user'] = $user;
-                redirect('/', '登录成功');
+                setcookie('user', json_encode($user), time() + 3600, '/');
+                            
+                // 记录登录操作日志
+                \app\model\Record::addOperation([
+                    'user_id' => $user['id'],
+                    'username' => $user['username'],
+                    'action' => 'login',
+                    'target' => 'system',
+                    'content' => "用户 {$user['username']} 登录系统",
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+                ]);
+                            
+                // 使用 JavaScript 重定向
+                echo '<script>window.location.href="/";</script>';
+                exit;
             } else {
-                redirect('login', '用户名或密码错误');
+                // 登录失败，重定向回登录页面
+                echo '<script>window.location.href="/login?error=1";</script>';
+                exit;
             }
         }
         
         // 直接渲染登录页面，不使用主布局（特殊情况）
         ob_start();
-        ?>        
+        ?>
         <!DOCTYPE html>
         <html lang="zh-CN">
         <head>
@@ -35,7 +50,6 @@ class User
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>登录 - 仓储管理系统</title>
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         </head>
         <body>
             <div class="container mt-5">
@@ -46,6 +60,9 @@ class User
                                 <h3 class="text-center">登录</h3>
                             </div>
                             <div class="card-body">
+                                <?php if (isset($_GET['error'])): ?>
+                                <div class="alert alert-danger">用户名或密码错误</div>
+                                <?php endif; ?>
                                 <form action="/login" method="post">
                                     <div class="mb-3">
                                         <label for="username" class="form-label">用户名</label>
@@ -72,8 +89,23 @@ class User
     // 注销
     public function logout()
     {
-        // 清空session
-        unset($_SESSION['user']);
+        // 获取用户信息
+        $user_data = json_decode($_COOKIE['user'], true);
+            
+        // 记录注销操作日志
+        if ($user_data) {
+            \app\model\Record::addOperation([
+                'user_id' => $user_data['id'],
+                'username' => $user_data['username'],
+                'action' => 'logout',
+                'target' => 'system',
+                'content' => "用户 {$user_data['username']} 退出系统",
+                'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+            ]);
+        }
+            
+        // 清空 cookie
+        setcookie('user', '', time() - 3600, '/');
         redirect('login', '注销成功');
     }
     
@@ -81,11 +113,12 @@ class User
     public function profile()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
-        $user_id = $_SESSION['user']['id'];
+        $user_data = json_decode($_COOKIE['user'], true);
+        $user_id = $user_data['id'];
         $user = UserModel::getById($user_id);
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -158,12 +191,13 @@ class User
     public function index()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
         // 检查权限
-        if ($_SESSION['user']['role'] !== 'admin') {
+        $user_data = json_decode($_COOKIE['user'], true);
+        if ($user_data['role'] !== 'admin') {
             redirect('/', '无权限访问');
         }
         
@@ -255,12 +289,13 @@ class User
     public function add()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
         // 检查权限
-        if ($_SESSION['user']['role'] !== 'admin') {
+        $user_data = json_decode($_COOKIE['user'], true);
+        if ($user_data['role'] !== 'admin') {
             redirect('/', '无权限访问');
         }
         
@@ -359,12 +394,13 @@ class User
     public function edit($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
         // 检查权限
-        if ($_SESSION['user']['role'] !== 'admin') {
+        $user_data = json_decode($_COOKIE['user'], true);
+        if ($user_data['role'] !== 'admin') {
             redirect('/', '无权限访问');
         }
         
@@ -461,12 +497,13 @@ class User
     public function delete($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
         // 检查权限
-        if ($_SESSION['user']['role'] !== 'admin') {
+        $user_data = json_decode($_COOKIE['user'], true);
+        if ($user_data['role'] !== 'admin') {
             redirect('/', '无权限访问');
         }
         
@@ -484,12 +521,13 @@ class User
     public function rolePermission()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
         // 检查权限
-        if ($_SESSION['user']['role'] !== 'admin') {
+        $user_data = json_decode($_COOKIE['user'], true);
+        if ($user_data['role'] !== 'admin') {
             redirect('/', '无权限访问');
         }
         

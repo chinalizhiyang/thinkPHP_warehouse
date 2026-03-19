@@ -35,8 +35,8 @@ git add .
 
 echo.
 echo 步骤4: 创建初始提交...
-git config user.name "Your Name"
-git config user.email "your.email@example.com"
+git config user.name "chinalizhiyang"
+git config user.email "chinalizhiyang@163.com"
 git commit -m "Initial commit: PHP仓储管理系统(ThinkPHP版)"
 
 echo.

@@ -9,12 +9,12 @@ class Role
     public function index()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
         // 检查权限
-        if ($_SESSION['user']['role'] !== 'admin') {
+        if ($_COOKIE['user']['role'] !== 'admin') {
             redirect('/', '无权限访问');
         }
         
@@ -29,12 +29,12 @@ class Role
     public function add()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
         // 检查权限
-        if ($_SESSION['user']['role'] !== 'admin') {
+        if ($_COOKIE['user']['role'] !== 'admin') {
             redirect('/', '无权限访问');
         }
         
@@ -62,12 +62,12 @@ class Role
     public function edit($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
         // 检查权限
-        if ($_SESSION['user']['role'] !== 'admin') {
+        if ($_COOKIE['user']['role'] !== 'admin') {
             redirect('/', '无权限访问');
         }
         
@@ -98,12 +98,12 @@ class Role
     public function delete($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
         // 检查权限
-        if ($_SESSION['user']['role'] !== 'admin') {
+        if ($_COOKIE['user']['role'] !== 'admin') {
             redirect('/', '无权限访问');
         }
         
@@ -121,12 +121,12 @@ class Role
     public function assign($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
         // 检查权限
-        if ($_SESSION['user']['role'] !== 'admin') {
+        if ($_COOKIE['user']['role'] !== 'admin') {
             redirect('/', '无权限访问');
         }
         

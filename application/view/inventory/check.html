@@ -1,26 +1,26 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>库存盘点 - 仓储管理系统</title>
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <title>搴撳瓨鐩樼偣 - 浠撳偍绠＄悊绯荤粺</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-5">
-        <h1>库存盘点</h1>
+        <h1>搴撳瓨鐩樼偣</h1>
         <form action="/inventory/check" method="post">
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>物料名称</th>
-                        <th>物料编码</th>
-                        <th>单位</th>
-                        <th>系统库存</th>
-                        <th>实际库存</th>
-                        <th>差异</th>
-                        <th>单价</th>
-                        <th>差异金额</th>
+                        <th>鐗╂枡鍚嶇О</th>
+                        <th>鐗╂枡缂栫爜</th>
+                        <th>鍗曚綅</th>
+                        <th>绯荤粺搴撳瓨</th>
+                        <th>瀹為檯搴撳瓨</th>
+                        <th>宸紓</th>
+                        <th>鍗曚环</th>
+                        <th>宸紓閲戦</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,18 +51,17 @@
             </table>
             
             <div class="mt-4 mb-3">
-                <label for="total_amount" class="form-label">总差异金额</label>
+                <label for="total_amount" class="form-label">鎬诲樊寮傞噾棰?/label>
                 <input type="number" class="form-control" id="total_amount" name="total_amount" step="0.01" min="0" readonly required>
             </div>
             
-            <button type="submit" class="btn btn-primary">提交盘点</button>
-            <a href="/inventory" class="btn btn-secondary">取消</a>
+            <button type="submit" class="btn btn-primary">鎻愪氦鐩樼偣</button>
+            <a href="/inventory" class="btn btn-secondary">鍙栨秷</a>
         </form>
     </div>
-    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 计算差异和金额
-        function calculateDifference(index) {
+        // 璁＄畻宸紓鍜岄噾棰?        function calculateDifference(index) {
             const systemStock = parseFloat($(`.system-stock-input:eq(${index})`).val()) || 0;
             const actualStock = parseFloat($(`.actual-stock-input:eq(${index})`).val()) || 0;
             const price = parseFloat($(`.price-input:eq(${index})`).val()) || 0;
@@ -75,8 +74,7 @@
             calculateTotal();
         }
         
-        // 计算总差异金额
-        function calculateTotal() {
+        // 璁＄畻鎬诲樊寮傞噾棰?        function calculateTotal() {
             let total = 0;
             $('.amount-input').each(function() {
                 total += parseFloat($(this).val()) || 0;
@@ -84,15 +82,14 @@
             $('#total_amount').val(total.toFixed(2));
         }
         
-        // 绑定事件
+        // 缁戝畾浜嬩欢
         $(document).ready(function() {
             $('.actual-stock-input').on('input', function() {
                 const index = $(this).closest('tr').index();
                 calculateDifference(index);
             });
             
-            // 初始化计算
-            $('.actual-stock-input').each(function() {
+            // 鍒濆鍖栬绠?            $('.actual-stock-input').each(function() {
                 const index = $(this).closest('tr').index();
                 calculateDifference(index);
             });
@@ -100,3 +97,5 @@
     </script>
 </body>
 </html>
+
+

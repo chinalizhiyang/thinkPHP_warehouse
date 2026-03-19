@@ -132,21 +132,21 @@ class Inventory
         $end_date = $params['end_date'] ?? date('Y-m-d');
         $page = $params['page'] ?? 1;
         $page_size = $params['page_size'] ?? 25;
-        
+            
         // 计算偏移量
         $offset = ($page - 1) * $page_size;
-        
-        // 获取所有物料ID列表，用于后续计算
+            
+        // 获取所有物料 ID 列表，用于后续计算
         $material_ids_sql = "SELECT id FROM materials WHERE created_at <= ? ORDER BY updated_at DESC, id DESC";
         $material_ids_result = db_get_all($material_ids_sql, [$end_date . ' 23:59:59']);
         $material_ids = array_column($material_ids_result, 'id');
-        
+            
         // 获取总记录数
         $total = count($material_ids);
-        
-        // 分页获取物料ID
+            
+        // 分页获取物料 ID
         $paginated_material_ids = array_slice($material_ids, $offset, $page_size);
-        
+            
         if (empty($paginated_material_ids)) {
             return [
                 'start_date' => $start_date,
@@ -160,57 +160,59 @@ class Inventory
                 'page_size' => $page_size
             ];
         }
-        
+            
         // 初始化结果数组
         $details = [];
         $total_materials = $total;
         $total_stock = 0;
         $total_amount = 0.00;
-        
-        // 获取每个物料的详细信息并计算库存数据
-        foreach ($paginated_material_ids as $material_id) {
-            // 获取物料基本信息
-            $material_sql = "SELECT 
-                                id as material_id, 
-                                name as material_name, 
-                                material_code, 
-                                spec, 
-                                unit, 
-                                price 
-                            FROM materials 
-                            WHERE id = ?";
-            $material = db_get_row($material_sql, [$material_id]);
             
-            if (!$material) {
-                continue;
-            }
+        // 批量获取物料基本信息
+        $material_ids_str = implode(',', array_map('intval', $paginated_material_ids));
+        $materials_sql = "SELECT id as material_id, name as material_name, material_code, spec, unit, price, stock as current_stock, location
+                          FROM materials WHERE id IN ($material_ids_str)";
+        $materials = db_get_all($materials_sql);
             
-            // 计算期初库存：开始日期之前的库存 + 开始日期之前的入库 - 开始日期之前的出库
-            $begin_stock_sql = "
-                SELECT 
-                    IFNULL((SELECT stock FROM materials WHERE id = ? AND created_at < ?), 0) AS initial_stock,
-                    IFNULL((SELECT SUM(quantity) FROM inbound WHERE material_code = (SELECT material_code FROM materials WHERE id = ?) AND in_time < ?), 0) AS inbound_before,
-                    IFNULL((SELECT SUM(quantity) FROM outbound WHERE material_code = (SELECT material_code FROM materials WHERE id = ?) AND out_time < ?), 0) AS outbound_before
-            ";
-            $begin_stock_result = db_get_row($begin_stock_sql, [$material_id, $start_date . ' 00:00:00', $material_id, $start_date . ' 00:00:00', $material_id, $start_date . ' 00:00:00']);
-            $begin_stock = $begin_stock_result['initial_stock'] + $begin_stock_result['inbound_before'] - $begin_stock_result['outbound_before'];
+        // 获取本期入库数据（批量查询）
+        $material_codes = array_column($materials, 'material_code');
+        $material_codes_str = implode("','", array_map(function($code) {
+            return addslashes($code);
+        }, $material_codes));
             
-            // 计算本期入库：开始日期和结束日期之间的入库总量
-            $inbound_sql = "SELECT IFNULL(SUM(quantity), 0) as total_inbound FROM inbound WHERE material_code = ? AND in_time BETWEEN ? AND ?";
-            $inbound_result = db_get_row($inbound_sql, [$material['material_code'], $start_date . ' 00:00:00', $end_date . ' 23:59:59']);
-            $total_inbound = $inbound_result['total_inbound'];
+        $inbound_sql = "SELECT material_code, SUM(quantity) as total_inbound 
+                        FROM inbound 
+                        WHERE material_code IN ('$material_codes_str') 
+                        AND in_time BETWEEN '$start_date 00:00:00' AND '$end_date 23:59:59'
+                        GROUP BY material_code";
+        $inbound_data = db_get_all($inbound_sql);
+        $inbound_map = array_column($inbound_data, 'total_inbound', 'material_code');
             
-            // 计算本期出库：开始日期和结束日期之间的出库总量
-            $outbound_sql = "SELECT IFNULL(SUM(quantity), 0) as total_outbound FROM outbound WHERE material_code = ? AND out_time BETWEEN ? AND ?";
-            $outbound_result = db_get_row($outbound_sql, [$material['material_code'], $start_date . ' 00:00:00', $end_date . ' 23:59:59']);
-            $total_outbound = $outbound_result['total_outbound'];
+        // 获取本期出库数据（批量查询）
+        $outbound_sql = "SELECT material_code, SUM(quantity) as total_outbound 
+                         FROM outbound 
+                         WHERE material_code IN ('$material_codes_str') 
+                         AND out_time BETWEEN '$start_date 00:00:00' AND '$end_date 23:59:59'
+                         GROUP BY material_code";
+        $outbound_data = db_get_all($outbound_sql);
+        $outbound_map = array_column($outbound_data, 'total_outbound', 'material_code');
             
-            // 计算期末库存：期初库存 + 本期入库 - 本期出库
-            $end_stock = $begin_stock + $total_inbound - $total_outbound;
-            
+        // 处理每个物料
+        foreach ($materials as $material) {
+            $material_code = $material['material_code'];
+                
+            // 获取本期入库和出库（使用映射，避免重复查询）
+            $total_inbound = $inbound_map[$material_code] ?? 0;
+            $total_outbound = $outbound_map[$material_code] ?? 0;
+                
+            // 计算期初库存：期末库存（当前库存） - 本期入库 + 本期出库
+            $begin_stock = $material['current_stock'] - $total_inbound + $total_outbound;
+                
+            // 期末库存就是当前库存
+            $end_stock = $material['current_stock'];
+                
             // 计算库存金额
             $amount = $end_stock * $material['price'];
-            
+                
             // 添加到结果数组
             $details[] = [
                 'material_id' => $material['material_id'],
@@ -223,14 +225,15 @@ class Inventory
                 'outbound' => $total_outbound, // 本期出库
                 'end_stock' => $end_stock, // 期末库存
                 'price' => $material['price'],
-                'amount' => $amount
+                'amount' => $amount,
+                'location' => $material['location'] ?? '-'
             ];
-            
+                
             // 累加总库存和总金额
             $total_stock += $end_stock;
             $total_amount += $amount;
         }
-        
+            
         return [
             'start_date' => $start_date,
             'end_date' => $end_date,

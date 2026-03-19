@@ -6,3 +6,7 @@ return [
     'app_env' => 'development',
     'app_key' => 'your-secret-key',
 ];
+
+'template' => [
+    'cache' => false, // 关闭模板缓存
+],

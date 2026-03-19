@@ -10,7 +10,7 @@ class Outbound
     public function index()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -26,15 +26,28 @@ class Outbound
         // 获取搜索参数
         $search = isset($_GET['search']) ? $_GET['search'] : '';
         
+        // 获取日期段查询参数
+        $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
+        $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+        
+        // 构建查询条件
+        $where = [];
+        if (!empty($start_date)) {
+            $where['start_date'] = $start_date . ' 00:00:00';
+        }
+        if (!empty($end_date)) {
+            $where['end_date'] = $end_date . ' 23:59:59';
+        }
+        
         // 获取出库单列表
-        $result = OutboundModel::getList([], $page, $page_size, $search);
+        $result = OutboundModel::getList($where, $page, $page_size, $search);
         $outbounds = $result['data'];
         
         // 获取导航菜单
         $menu = get_nav_menu();
         
         // 渲染出库单列表内容
-        $content = $this->renderOutboundListContent($outbounds, $result['total'], $page, $page_size, $search);
+        $content = $this->renderOutboundListContent($outbounds, $result['total'], $page, $page_size, $search, $start_date, $end_date);
         
         // 显示出库单列表页面
         return view('layout/main', [
@@ -46,25 +59,23 @@ class Outbound
     }
     
     // 渲染出库单列表内容
-    private function renderOutboundListContent($outbounds, $total, $page, $page_size, $search = '')
+    private function renderOutboundListContent($outbounds, $total, $page, $page_size, $search = '', $start_date = '', $end_date = '')
     {
         ob_start();
         ?>
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-3"><i class="fa fa-sign-out"></i> 出库单列表</h3>
-                <div class="d-flex justify-content-between align-items-center">
-                    <form class="form-inline" method="get" action="/outbound">
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="search" placeholder="搜索物料编码、名称、类别等" value="<?php echo htmlspecialchars($search); ?>">
-                            <div class="input-group-append">
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> 搜索</button>
-                                <button type="button" class="btn btn-secondary" onclick="location.href='/outbound'" title="重置搜索"><i class="fa fa-refresh"></i> 重置</button>
-                            </div>
-                        </div>
-                    </form>
-                    <a href="/outbound/add" class="btn btn-primary ml-2"><i class="fa fa-plus"></i> 添加出库单</a>
-                </div>
+                <form class="form-inline" method="get" action="/outbound" style="display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;">
+                    <input type="text" class="form-control form-control-sm" name="search" placeholder="搜索物料编码、名称等" value="<?php echo htmlspecialchars($search); ?>" style="width: 180px;">
+                    <input type="date" class="form-control form-control-sm" name="start_date" value="<?php echo htmlspecialchars($start_date); ?>" title="开始日期" style="width: 120px;">
+                    <span style="white-space: nowrap;">至</span>
+                    <input type="date" class="form-control form-control-sm" name="end_date" value="<?php echo htmlspecialchars($end_date); ?>" title="结束日期" style="width: 120px;">
+                    <button type="submit" class="btn btn-primary btn-sm" style="white-space: nowrap;"><i class="fa fa-search"></i> 搜索</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="resetSearch()" title="重置搜索" style="white-space: nowrap;"><i class="fa fa-refresh"></i> 重置</button>
+                    <a href="/outbound/export-csv?search=<?php echo urlencode($search); ?>&start_date=<?php echo urlencode($start_date); ?>&end_date=<?php echo urlencode($end_date); ?>" class="btn btn-success btn-sm" style="white-space: nowrap;"><i class="fa fa-download"></i> 导出CSV</a>
+                    <a href="/outbound/add" class="btn btn-primary btn-sm" style="white-space: nowrap;"><i class="fa fa-plus"></i> 创建出库单</a>
+                </form>
             </div>
             <div class="card-body">
                 <table class="table table-bordered table-striped">
@@ -111,16 +122,26 @@ class Outbound
                 
                 <!-- 分页导航 -->
                 <div class="mt-3">
-                    <?php $this->renderPagination($total, $page, $page_size, $search); ?>
+                    <?php $this->renderPagination($total, $page, $page_size, $search, $start_date, $end_date); ?>
                 </div>
             </div>
         </div>
+        <script>
+            // 重置搜索
+            function resetSearch() {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('search');
+                url.searchParams.delete('start_date');
+                url.searchParams.delete('end_date');
+                window.location.href = url.toString();
+            }
+        </script>
         <?php
         return ob_get_clean();
     }
     
     // 渲染分页导航
-    private function renderPagination($total, $page, $page_size, $search = '')
+    private function renderPagination($total, $page, $page_size, $search = '', $start_date = '', $end_date = '')
     {
         $total_pages = ceil($total / $page_size);
         
@@ -129,7 +150,17 @@ class Outbound
         }
         
         // 构建搜索参数
-        $search_param = $search ? '&search=' . urlencode($search) : '';
+        $params = [];
+        if ($search) {
+            $params[] = 'search=' . urlencode($search);
+        }
+        if ($start_date) {
+            $params[] = 'start_date=' . urlencode($start_date);
+        }
+        if ($end_date) {
+            $params[] = 'end_date=' . urlencode($end_date);
+        }
+        $search_param = !empty($params) ? '&' . implode('&', $params) : '';
         
         echo '<nav aria-label="Page navigation">';
         echo '<ul class="pagination justify-content-center">';
@@ -181,7 +212,7 @@ class Outbound
     public function add()
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -317,6 +348,15 @@ class Outbound
         </div>
         
         <script>
+            // 重置搜索
+            function resetSearch() {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('search');
+                url.searchParams.delete('start_date');
+                url.searchParams.delete('end_date');
+                window.location.href = url.toString();
+            }
+            
             // 添加明细行
             document.getElementById('add-detail').addEventListener('click', function() {
                 const tbody = document.querySelector('#outbound-details tbody');
@@ -407,7 +447,7 @@ class Outbound
     public function edit($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -549,7 +589,7 @@ class Outbound
     public function delete($id)
     {
         // 检查登录状态
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_COOKIE['user'])) {
             redirect('login', '请先登录');
         }
         
@@ -566,5 +606,72 @@ class Outbound
         } else {
             redirect('outbound', '删除失败');
         }
+    }
+    
+    // 导出出库单为 CSV
+    public function exportCsv()
+    {
+        // 检查登录状态
+        if (!isset($_COOKIE['user'])) {
+            redirect('login', '请先登录');
+        }
+        
+        // 检查权限
+        if (!check_permission('outbound_manage')) {
+            redirect('/', '无权限访问');
+        }
+        
+        // 获取参数
+        $search = $_GET['search'] ?? '';
+        $start_date = $_GET['start_date'] ?? '';
+        $end_date = $_GET['end_date'] ?? '';
+        
+        // 构建查询条件
+        $where = [];
+        if (!empty($start_date)) {
+            $where['start_date'] = $start_date . ' 00:00:00';
+        }
+        if (!empty($end_date)) {
+            $where['end_date'] = $end_date . ' 23:59:59';
+        }
+        
+        // 获取所有数据（不分页）
+        $result = OutboundModel::getAll($where, $search);
+        $outbounds = $result['data'];
+        
+        // 设置 CSV文件头部
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="出库单_' . date('Y-m-d_H-i-s') . '.csv"');
+        
+        // 输出 BOM 以确保 Excel 能正确识别 UTF-8 编码
+        echo "\xEF\xBB\xBF";
+        
+        // 创建输出流
+        $output = fopen('php://output', 'w');
+        
+        // 写入表头
+        fputcsv($output, ['ID', '物料编码', '类别', '物料名称', '规格', '单位', '数量', '单价', '总价','出库时间', '接收人', '部门', '备注']);
+        
+        // 写入数据行
+        foreach ($outbounds as $outbound) {
+            fputcsv($output, [
+                $outbound['id'],
+                $outbound['material_code'],
+                $outbound['category'],
+                $outbound['material_name'],
+                $outbound['spec'] ?? '',
+                $outbound['unit'],
+                $outbound['quantity'],
+                $outbound['price'],
+                $outbound['total_price'],   
+                $outbound['out_time'],
+                $outbound['receiver'],
+                $outbound['dept'],
+                $outbound['remark'] ?? ''
+            ]);
+        }
+        
+        fclose($output);
+        exit;
     }
 }
